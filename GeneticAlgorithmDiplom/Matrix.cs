@@ -168,9 +168,9 @@ namespace GeneticAlgorithmDiplom
                 int pRow = j;
                 for (int i = j + 1; i < size; ++i)
                 {
-                    if (duplicatedMatrix[i, j] > columnMax)
+                    if (duplicatedMatrix.matrix[i, j] > columnMax)
                     {
-                        columnMax = duplicatedMatrix[i, j];
+                        columnMax = duplicatedMatrix.matrix[i, j];
                         pRow = i;
                     }
                 }
@@ -190,20 +190,112 @@ namespace GeneticAlgorithmDiplom
                 }
                 for (int i = j + 1; i < size; ++i)
                 {
-                    duplicatedMatrix[i, j] /= duplicatedMatrix[j, j];
+                    duplicatedMatrix.matrix[i, j] /= duplicatedMatrix.matrix[j, j];
                     for (int k = j + 1; k < size; ++k)
                     {
-                        duplicatedMatrix[i, k] -= duplicatedMatrix[i, j] * duplicatedMatrix[j, k];
+                        duplicatedMatrix.matrix[i, k] -= duplicatedMatrix.matrix[i, j] * duplicatedMatrix.matrix[j, k];
                     }
                 }
             }
             return duplicatedMatrix;
         }
 
+        /// <summary>
+        /// Находит массив x, который при умножении на матрицу LU дает массив b.
+        /// Решает систему уравнений.
+        /// </summary>
+        /// <param name="luMatrix"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static int[] HelperSolve(Matrix luMatrix, int[] b)
         {
             int size = luMatrix.rows;
             int[] x = new int[size];
+            b.CopyTo(x, 0);
+            for (int i = 1; i < size; ++i)
+            {
+                int sum = x[i];
+                for (int j = 0; j < i; ++j)
+                {
+                    sum -= luMatrix.matrix[i, j] * x[j];
+                    x[i] = sum;
+                }
+            }
+            x[size - 1] /= luMatrix.matrix[size - 1, size - 1];
+            for (int i = size - 2; i >= 0; --i)
+            {
+                int sum = x[i];
+                for (int j = i + 1; j < size; ++j)
+                {
+                    sum -= luMatrix.matrix[i, j] * x[j];
+                }
+                x[i] = sum / luMatrix.matrix[i, i];
+            }
+            return x;
+        }
+
+        /// <summary>
+        /// Алгоритм обращения/ Результат перемножения матрицы M и ее обращения 
+        /// является единичной матрицей. Метод MatrixInverse в основном отвечает за решение 
+        /// системы уравнений Ax = b, где A — матрица разложения LU , а константы b равны 
+        /// либо 1, либо 0 и соответствуют единичной матрице. Заметьте, что MatrixInverse 
+        /// использует массив perm, возвращаемый после вызова MatrixDecompose.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static Matrix Inverse(Matrix m)
+        {
+            int size = m.rows;
+            var result = new Matrix(m.rows, m.columns);
+            for (int row = 0; row < m.rows; ++row)
+            {
+                for (int column = 0; column < m.columns; ++column)
+                {
+                    result.matrix[row, column] = m.matrix[row, column];
+                }
+            }
+            int[] perm;
+            int toggle;
+            var lum = Matrix.Decompose(m, out perm, out toggle);
+/*            if (lum == null)
+                throw new Exception("Unable to compute inverse");*/
+            int[] b = new int[size];
+            for (int i = 0; i < size; ++i)
+            {
+                for (int j = 0; j < size; ++j)
+                {
+                    if (i == perm[j])
+                        b[j] = 1;
+                    else
+                        b[j] = 0;
+                }
+                int[] x = Matrix.HelperSolve(lum, b);
+                for (int j = 0; j < size; ++j)
+                    result[j][i] = x[j];
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Определитель матрицы — это просто результат перемножения значений 
+        /// на основной диагонали матрицы разложения LUP со знаком «плюс» или 
+        /// «минус» в зависимости от значения toggle.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static int GetDeterminant(Matrix m)
+        {
+            int[] perm;
+            int toggle;
+            Matrix lum = Matrix.Decompose(m, out perm, out toggle);
+            /*if (lum == null)
+                throw new Exception("Unable to compute MatrixDeterminant"); */
+            int result = toggle;
+            for (int i = 0; i < lum.rows; ++i)
+                result *= lum.matrix[i, i];
+            return result;
         }
     }
 }

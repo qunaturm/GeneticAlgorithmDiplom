@@ -1,136 +1,109 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Linq;
-
-namespace GeneticAlgorithmDiplom
+﻿namespace GeneticAlgorithmDiplom
 {
     public class Matrix
     {
-        public int columns { get; set; } // elements in each vector
-        public int rows { get; set; } // vectors amount 
-        public int[,] matrix = null;
 
-        public Matrix(int vectorsAmount, int elementsInVector)
+        public static double[][] CreateMatrix(int rows, int cols)
         {
-            columns = vectorsAmount;
-            rows = elementsInVector;
-            matrix = new int[columns, elementsInVector];
+            double[][] result = new double[rows][];
+            for (int i = 0; i < rows; ++i)
+                result[i] = new double[cols];
+            return result;
         }
 
         #region [chore]
-        public void FillVectors()
+        public static double[][] MatrixRandom(int rows, int cols, int seed)
         {
-            Random random = new Random();
-            for (int i = 0; i < columns; ++i)
-            {
-                for (int j = 0; j < rows; ++j)
-                {
-                    matrix[i, j] = random.Next(1, 100);
-                }
-            }
+            var minVal = 1;
+            var maxVal = 100;
+            Random random = new Random(seed);
+            double[][] result = CreateMatrix(rows, cols);
+            for (int i = 0; i < rows; ++i)
+                for (int j = 0; j < cols; ++j)
+                    result[i][j] = (maxVal - minVal) * random.Next() + minVal;
+            return result;
         }
 
-        public int this[int x, int y]
+        public static bool MatrixAreEqual(double[][] matrixA, double[][] matrixB, double epsilon)
         {
-            get { return matrix[x, y]; }
-            set { matrix[x, y] = value; }
+            int aRows = matrixA.Length;
+            int bCols = matrixB[0].Length;
+            for (int i = 0; i < aRows; ++i)
+                for (int j = 0; j < bCols; ++j)
+                    if (Math.Abs(matrixA[i][j] - matrixB[i][j]) > epsilon)
+                        return false;
+            return true;
         }
 
-        public int[] this[int x]
+        public static void PrintMatrix(double[][] matrix)
         {
-            get
+            for (int row = 0; row < matrix.Length; ++row)
             {
-                int[] row = new int[rows];
-                for (int i = 0; i < rows; ++i)
+                for (int column = 0; column < matrix.Length; ++column)
                 {
-                    for (int j = 0; j < columns; ++j)
-                    {
-                        row[j] = matrix[x, j];
-                    }
-                }
-                return row;
-            }
-        }
-
-        public override string ToString()
-        {
-            StringBuilder ret = new StringBuilder();
-            if (matrix == null) return ret.ToString();
-
-            for (int i = 0; i < rows; i++)
-            {
-                for (int t = 0; t < columns; t++)
-                {
-                    ret.Append(matrix[i, t]);
-                    ret.Append("\t");
-                }
-                ret.Append("\n");
-            }
-            return ret.ToString();
-        }
-
-        public static void PrintMatrix(Matrix m)
-        {
-            for (int row = 0; row < m.rows; ++row)
-            {
-                for (int column = 0; column < m.columns; ++column)
-                {
-                    Console.Write($"{m.matrix[row, column]}  ");
+                    Console.Write($"{matrix[row][column]}  ");
                 }
                 Console.WriteLine();
             }
         }
         #endregion
 
-        public int[] getRow(int rowNumber)
+        public double[] getRow(double[][] matrix, int rowNumber)
         {
-            int[] row = new int[rows];
-            for (int i = 0; i < rows; ++i)
+            var size = matrix.Length;
+            double[] row = new double[size];
+            for (int i = 0; i < size; ++i)
             {
-                for (int j = 0; j < columns; ++j)
+                for (int j = 0; j < size; ++j)
                 {
-                    row[j] = matrix[rowNumber, j];
+                    row[j] = matrix[rowNumber][j];
                 }
             }
             return row;
         }
 
-        public static void SwapTwoRows(ref Matrix m, int[] newRow, int index)
+        public static void SwapTwoRows(ref double[][] matrix, double[] newRow, int index)
         {
-            for (int i = 0; i < m.columns; ++i)
+            for (int i = 0; i < matrix.Length; ++i)
             {
-                m.matrix[index, i] = newRow[i];
+                matrix[index][i] = newRow[i];
             }
         }
 
-        public static Matrix GetSquareMatrix(Matrix m)
+        public static double[][] GetSquareMatrix(double[][] vectors, int vectorRow, int vectorCol)
         {
-            var squareMetrixSize = m.rows;
+            var squareMetrixSize = vectorCol;
             var random = new Random();
             int[] usedVectors = new int[squareMetrixSize];
+            double[][] result = CreateMatrix(squareMetrixSize, squareMetrixSize);
 
             // eliminate repeat
             for (int i = 0; i < squareMetrixSize; ++i)
             {
-                var nextVector = random.Next(0, m.columns);
+                var nextVector = random.Next(0, vectorRow);
                 while (usedVectors.Contains(nextVector))
                 {
-                    nextVector = random.Next(0, m.columns);
+                    nextVector = random.Next(0, vectorCol);
                 }
                 usedVectors[i] = nextVector;
             }
-            var squareMatrix = new Matrix(squareMetrixSize, squareMetrixSize);
             for (int row = 0; row < squareMetrixSize; ++row)
             {
                 for (int column = 0; column < squareMetrixSize; ++column)
                 {
-                    squareMatrix[row, column] = m.matrix[usedVectors[row], column];
+                    result[row][column] = vectors[usedVectors[row]][column];
                 }
             }
-            return squareMatrix;
+            return result;
+        }
+
+        public static double[][] MatrixDuplicate(double[][] matrix)
+        {
+            double[][] result = CreateMatrix(matrix.Length, matrix[0].Length);
+            for (int i = 0; i < matrix.Length; ++i)
+                for (int j = 0; j < matrix[i].Length; ++j)
+                    result[i][j] = matrix[i][j];
+            return result;
         }
 
         /// <summary>
@@ -144,18 +117,10 @@ namespace GeneticAlgorithmDiplom
         /// <param name="perm">Массив перестановки</param>
         /// <param name="toggle">Переключатель</param>
         /// <returns></returns>
-        public static Matrix Decompose(Matrix m, out int[] perm, out int toggle)
+        public static double[][] Decompose(double[][] matrix, out int[] perm, out int toggle)
         {
-            int size = m.rows;
-            var duplicatedMatrix = new Matrix(m.rows, m.columns);
-            for (int row = 0; row < m.rows; ++row)
-            {
-                for (int column = 0; column < m.columns; ++column)
-                {
-                    duplicatedMatrix.matrix[row, column] = m.matrix[row, column];
-                }    
-            }
-
+            int size = matrix.Length;
+            var duplicatedMatrix = MatrixDuplicate(matrix);
             perm = new int[size];
             for (int i = 0; i < size; ++i)
             {
@@ -164,36 +129,36 @@ namespace GeneticAlgorithmDiplom
             toggle = 1;
             for (int j = 0; j < size - 1; ++j)
             {
-                int columnMax = Math.Abs(duplicatedMatrix[j, j]);
+                double columnMax = Math.Abs(duplicatedMatrix[j][j]);
                 int pRow = j;
                 for (int i = j + 1; i < size; ++i)
                 {
-                    if (duplicatedMatrix.matrix[i, j] > columnMax)
+                    if (duplicatedMatrix[i][j] > columnMax)
                     {
-                        columnMax = duplicatedMatrix.matrix[i, j];
+                        columnMax = duplicatedMatrix[i][j];
                         pRow = i;
                     }
                 }
                 if (pRow != j)
                 {
-                    int[] rowPtr = duplicatedMatrix[pRow];
-                    SwapTwoRows(ref duplicatedMatrix, duplicatedMatrix[j], pRow);
-                    SwapTwoRows(ref duplicatedMatrix, rowPtr, j);
+                    double[] rowPtr = duplicatedMatrix[pRow];
+                    duplicatedMatrix[pRow] = duplicatedMatrix[j];
+                    duplicatedMatrix[j] = rowPtr;
                     int tmp = perm[pRow];
                     perm[pRow] = perm[j];
                     perm[j] = tmp;
                     toggle = -toggle;
                 }
-                if (Math.Abs(duplicatedMatrix.matrix[j, j]) < 1.0E-20)
+                if (Math.Abs(duplicatedMatrix[j][j]) < 1.0E-20)
                 {
                     return null;
                 }
                 for (int i = j + 1; i < size; ++i)
                 {
-                    duplicatedMatrix.matrix[i, j] /= duplicatedMatrix.matrix[j, j];
+                    duplicatedMatrix[i][j] /= duplicatedMatrix[j][j];
                     for (int k = j + 1; k < size; ++k)
                     {
-                        duplicatedMatrix.matrix[i, k] -= duplicatedMatrix.matrix[i, j] * duplicatedMatrix.matrix[j, k];
+                        duplicatedMatrix[i][k] -= duplicatedMatrix[i][j] * duplicatedMatrix[j][k];
                     }
                 }
             }
@@ -207,29 +172,29 @@ namespace GeneticAlgorithmDiplom
         /// <param name="luMatrix"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public static int[] HelperSolve(Matrix luMatrix, int[] b)
+        public static double[] HelperSolve(double[][] luMatrix, double[] b)
         {
-            int size = luMatrix.rows;
-            int[] x = new int[size];
+            int size = luMatrix.Length;
+            double[] x = new double[size];
             b.CopyTo(x, 0);
             for (int i = 1; i < size; ++i)
             {
-                int sum = x[i];
+                double sum = x[i];
                 for (int j = 0; j < i; ++j)
                 {
-                    sum -= luMatrix.matrix[i, j] * x[j];
-                    x[i] = sum;
+                    sum -= luMatrix[i][j] * x[j];
                 }
+                x[i] = sum;
             }
-            x[size - 1] /= luMatrix.matrix[size - 1, size - 1];
+            x[size - 1] /= luMatrix[size - 1][size - 1];
             for (int i = size - 2; i >= 0; --i)
             {
-                int sum = x[i];
+                double sum = x[i];
                 for (int j = i + 1; j < size; ++j)
                 {
-                    sum -= luMatrix.matrix[i, j] * x[j];
+                    sum -= luMatrix[i][j] * x[j];
                 }
-                x[i] = sum / luMatrix.matrix[i, i];
+                x[i] = sum / luMatrix[i][i];
             }
             return x;
         }
@@ -244,37 +209,30 @@ namespace GeneticAlgorithmDiplom
         /// <param name="m"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static Matrix Inverse(Matrix m)
+        public static double[][] Inverse(double[][] matrix)
         {
-            int size = m.rows;
-            var result = new Matrix(m.rows, m.columns);
-            for (int row = 0; row < m.rows; ++row)
-            {
-                for (int column = 0; column < m.columns; ++column)
-                {
-                    result.matrix[row, column] = m.matrix[row, column];
-                }
-            }
+            int size = matrix.Length;
+            var duplicatedMatrix = MatrixDuplicate(matrix);
             int[] perm;
             int toggle;
-            var lum = Matrix.Decompose(m, out perm, out toggle);
-/*            if (lum == null)
-                throw new Exception("Unable to compute inverse");*/
-            int[] b = new int[size];
+            var lum = Decompose(matrix, out perm, out toggle);
+            if (lum == null)
+                throw new Exception("Unable to compute inverse");
+            double[] b = new double[size];
             for (int i = 0; i < size; ++i)
             {
                 for (int j = 0; j < size; ++j)
                 {
                     if (i == perm[j])
-                        b[j] = 1;
+                        b[j] = 1.0;
                     else
-                        b[j] = 0;
+                        b[j] = 0.0;
                 }
-                int[] x = Matrix.HelperSolve(lum, b);
+                double[] x = HelperSolve(lum, b);
                 for (int j = 0; j < size; ++j)
-                    result[j][i] = x[j];
+                    duplicatedMatrix[j][i] = x[j];
             }
-            return result;
+            return duplicatedMatrix;
         }
 
         /// <summary>
@@ -285,16 +243,16 @@ namespace GeneticAlgorithmDiplom
         /// <param name="m"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static int GetDeterminant(Matrix m)
+        public static double GetDeterminant(double[][] matrix)
         {
             int[] perm;
             int toggle;
-            Matrix lum = Matrix.Decompose(m, out perm, out toggle);
-            /*if (lum == null)
-                throw new Exception("Unable to compute MatrixDeterminant"); */
-            int result = toggle;
-            for (int i = 0; i < lum.rows; ++i)
-                result *= lum.matrix[i, i];
+            var lum = Decompose(matrix, out perm, out toggle);
+            if (lum == null)
+                throw new Exception("Unable to compute MatrixDeterminant");
+            double result = toggle;
+            for (int i = 0; i < lum.Length; ++i)
+                result *= lum[i][i];
             return result;
         }
     }

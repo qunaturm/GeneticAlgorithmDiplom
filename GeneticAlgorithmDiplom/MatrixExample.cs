@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestMatrix
+namespace MatrixExample
 {
-    public class MyMatrix
+    public class MatrixExample
     {
 
         public static double[][] MatrixCreate(int rows, int cols)

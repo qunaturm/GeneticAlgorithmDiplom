@@ -1,5 +1,5 @@
 ﻿using GeneticAlgorithmDiplom;
-using TestMatrix;
+using MatrixExample;
 
 namespace GeneticAlgorithmDiplom
 {
@@ -7,14 +7,7 @@ namespace GeneticAlgorithmDiplom
     {
         public static void Main(string[] args)
         {
-            /*int vectorsAmount = 7; // vectors amount >= elements in vector
-            int elementsInVector = 3;
-            var vectors = new Matrix(vectorsAmount, elementsInVector);
-            vectors.FillVectors();
-            var squareMatrix = Matrix.GetSquareMatrix(vectors);
-            Matrix.PrintMatrix(squareMatrix);*/
-
-            double[][] m = MyMatrix.MatrixCreate(4, 4);
+            double[][] m = MatrixExample.MatrixExample.MatrixCreate(4, 4);
 
             m[0][0] = 4;
             m[0][1] = 8;
@@ -36,9 +29,8 @@ namespace GeneticAlgorithmDiplom
             m[3][2] = 2;
             m[3][3] = 86;
 
-            var det = MyMatrix.MatrixDeterminant(m);
+            var det = MatrixExample.MatrixExample.MatrixDeterminant(m);
             Console.WriteLine(det);
-
         }
     }
 }

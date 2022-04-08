@@ -124,8 +124,6 @@ namespace MatrixExample
                     perm[j] = tmp;
                     toggle = -toggle; // переключатель перестановки строк
                 }
-                if (Math.Abs(result[j][j]) < 1.0E-20)
-                    return null;
                 for (int i = j + 1; i < n; ++i)
                 {
                     result[i][j] /= result[j][j];

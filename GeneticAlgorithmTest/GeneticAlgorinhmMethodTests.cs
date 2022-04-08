@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
+﻿using Xunit;
 using FluentAssertions;
-using static GeneticAlgorithmDiplom.GeneticEngine;
 using GeneticAlgorithmDiplom;
 
 namespace GeneticAlgorithmTest
@@ -17,7 +11,7 @@ namespace GeneticAlgorithmTest
         {
             var ga = new GeneticEngine();
             var firstGen = ga.GenerateFirstGeneration(30, 3, 10);
-            Assert.True(true);
+            firstGen.Count.Should().Be(10);
         }
     }
 }

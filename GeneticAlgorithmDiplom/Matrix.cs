@@ -117,6 +117,8 @@
         /// <param name="perm">Массив перестановки</param>
         /// <param name="toggle">Переключатель</param>
         /// <returns></returns>
+        /// 
+
         public static double[][] Decompose(double[][] matrix, out int[] perm, out int toggle)
         {
             int size = matrix.Length;
@@ -149,13 +151,17 @@
                     perm[j] = tmp;
                     toggle = -toggle;
                 }
-                if (Math.Abs(duplicatedMatrix[j][j]) < 1.0E-20)
-                {
-                    return null;
-                }
                 for (int i = j + 1; i < size; ++i)
                 {
-                    duplicatedMatrix[i][j] /= duplicatedMatrix[j][j];
+                    double current = duplicatedMatrix[i][j] / duplicatedMatrix[j][j];
+                    if (double.IsNaN(current))
+                    {
+                        duplicatedMatrix[i][j] = 0;
+                    }
+                    else
+                    {
+                        duplicatedMatrix[i][j] = current;
+                    }
                     for (int k = j + 1; k < size; ++k)
                     {
                         duplicatedMatrix[i][k] -= duplicatedMatrix[i][j] * duplicatedMatrix[j][k];
@@ -248,7 +254,7 @@
             int[] perm;
             int toggle;
             var lum = Decompose(matrix, out perm, out toggle);
-            if (lum == null) return -1;
+            if (lum == null) throw new Exception("unable compute determinant");
             double result = toggle;
             for (int i = 0; i < lum.Length; ++i)
                 result *= lum[i][i];

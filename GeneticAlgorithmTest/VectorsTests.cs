@@ -19,13 +19,6 @@ namespace GeneticAlgorithmTest
         }
 
         [Fact]
-        public void GetSquareMatrix()
-        {
-            var matrix = Matrix.MatrixRandom(5, 2);
-            var squareMatrix = Matrix.GetSquareMatrix(matrix, 5, 2);
-        }
-
-        [Fact]
         public void GetDeterminant3x3()
         {
             var matrix = Matrix.MatrixRandom(7, 3);
@@ -67,20 +60,20 @@ namespace GeneticAlgorithmTest
         {
             double[][] m = Matrix.CreateMatrix(3, 3);
 
-            m[0][0] = 1;
+            m[0][0] = 0;
             m[0][1] = 1;
             m[0][2] = 1;
 
-            m[1][0] = 1;
-            m[1][1] = 1;
+            m[1][0] = 0;
+            m[1][1] = 0;
             m[1][2] = 0;
 
             m[2][0] = 0;
             m[2][1] = 1;
-            m[2][2] = 1;
+            m[2][2] = 0;
 
-            var det = MatrixExample.MatrixExample.MatrixDeterminant(m);
-            det.Should().BeInRange(1, 1.1);
+            var det = Matrix.GetDeterminant(m);
+            det.Should().BeInRange(0, 0.1);
         }
 
         [Fact]

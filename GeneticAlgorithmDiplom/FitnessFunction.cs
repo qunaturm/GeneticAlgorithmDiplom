@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GeneticAlgorithmDiplom
+﻿namespace GeneticAlgorithmDiplom
 {
     public class FitnessFunction
     {
-        //public int GetArity(); // get bits amount from genom
+        public double fitnessValue = 1.0;
+        public FitnessFunction()
+        {
+
+        }
         public static double GetFitness()
         {
             var fitnessValue = 1.0;
             return fitnessValue;
         }
-
     }
 
     public enum SelectionType

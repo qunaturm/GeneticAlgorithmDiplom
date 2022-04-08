@@ -113,12 +113,10 @@
         /// переставлены строки. Второй выходной параметр — переключатель, принимающий значение либо +1, 
         /// либо –1 в зависимости от того, было количество перестановок четным (+1) или нечетным (–1).
         /// </summary>
-        /// <param name="m">Матрица</param>
+        /// <param name="matrix">Матрица</param>
         /// <param name="perm">Массив перестановки</param>
         /// <param name="toggle">Переключатель</param>
         /// <returns></returns>
-        /// 
-
         public static double[][] Decompose(double[][] matrix, out int[] perm, out int toggle)
         {
             int size = matrix.Length;

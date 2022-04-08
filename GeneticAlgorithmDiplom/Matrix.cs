@@ -12,15 +12,15 @@
         }
 
         #region [chore]
-        public static double[][] MatrixRandom(int rows, int cols, int seed)
+        public static double[][] MatrixRandom(int rows, int cols)
         {
-            var minVal = 1;
-            var maxVal = 100;
-            Random random = new Random(seed);
+            var minVal = 0;
+            var maxVal = 2;  // not included
+            Random random = new Random();
             double[][] result = CreateMatrix(rows, cols);
             for (int i = 0; i < rows; ++i)
                 for (int j = 0; j < cols; ++j)
-                    result[i][j] = (maxVal - minVal) * random.Next() + minVal;
+                    result[i][j] = random.Next(minVal, maxVal);
             return result;
         }
 
@@ -83,7 +83,7 @@
                 var nextVector = random.Next(0, vectorRow);
                 while (usedVectors.Contains(nextVector))
                 {
-                    nextVector = random.Next(0, vectorCol);
+                    nextVector = random.Next(0, vectorRow);
                 }
                 usedVectors[i] = nextVector;
             }
@@ -248,8 +248,7 @@
             int[] perm;
             int toggle;
             var lum = Decompose(matrix, out perm, out toggle);
-            if (lum == null)
-                throw new Exception("Unable to compute MatrixDeterminant");
+            if (lum == null) return -1;
             double result = toggle;
             for (int i = 0; i < lum.Length; ++i)
                 result *= lum[i][i];

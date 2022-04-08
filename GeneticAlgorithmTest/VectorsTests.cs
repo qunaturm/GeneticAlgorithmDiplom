@@ -10,8 +10,8 @@ namespace GeneticAlgorithmTest
         [Fact]
         public void SwapTwoRows()
         {
-            var matrix = Matrix.MatrixRandom(5, 2, 1);
-            var squareMatrix = Matrix.GetSquareMatrix(matrix, 3, 2);
+            var matrix = Matrix.MatrixRandom(5, 2);
+            var squareMatrix = Matrix.GetSquareMatrix(matrix, 5, 2);
             double[] rowToSwap = new double[] { 99, 99 };
             Matrix.SwapTwoRows(ref squareMatrix, rowToSwap, 0);
             squareMatrix[0][0].Should().Be(99);
@@ -19,9 +19,16 @@ namespace GeneticAlgorithmTest
         }
 
         [Fact]
+        public void GetSquareMatrix()
+        {
+            var matrix = Matrix.MatrixRandom(5, 2);
+            var squareMatrix = Matrix.GetSquareMatrix(matrix, 5, 2);
+        }
+
+        [Fact]
         public void GetDeterminant3x3()
         {
-            var matrix = Matrix.MatrixRandom(7, 3, 1);
+            var matrix = Matrix.MatrixRandom(7, 3);
             var squareMatrix = Matrix.GetSquareMatrix(matrix, 7, 3);
             double[] row1ToSwap = new double[] { 4, 8, 12 };
             double[] row2ToSwap = new double[] { 16, 29, 98 };
@@ -56,9 +63,51 @@ namespace GeneticAlgorithmTest
         }
 
         [Fact]
+        public void GetDeterminant3x3_Matrix_v2()
+        {
+            double[][] m = Matrix.CreateMatrix(3, 3);
+
+            m[0][0] = 1;
+            m[0][1] = 1;
+            m[0][2] = 1;
+
+            m[1][0] = 1;
+            m[1][1] = 1;
+            m[1][2] = 0;
+
+            m[2][0] = 0;
+            m[2][1] = 1;
+            m[2][2] = 1;
+
+            var det = MatrixExample.MatrixExample.MatrixDeterminant(m);
+            det.Should().BeInRange(1, 1.1);
+        }
+
+        [Fact]
+        public void GetDeterminant3x3_TestMatrix_v2()
+        {
+            double[][] m = MatrixExample.MatrixExample.MatrixCreate(3, 3);
+
+            m[0][0] = 1;
+            m[0][1] = 1;
+            m[0][2] = 1;
+
+            m[1][0] = 1;
+            m[1][1] = 1;
+            m[1][2] = 0;
+
+            m[2][0] = 0;
+            m[2][1] = 1;
+            m[2][2] = 1;
+
+            var det = MatrixExample.MatrixExample.MatrixDeterminant(m);
+            det.Should().BeInRange(1, 1.1);
+        }
+
+        [Fact]
         public void GetDeterminant4x4()
         {
-            var matrix = Matrix.MatrixRandom(9, 4, 1);
+            var matrix = Matrix.MatrixRandom(9, 4);
             var squareMatrix = Matrix.GetSquareMatrix(matrix, 9, 4);
             double[] row1ToSwap = new double[] { 4, 8, 12, 55};
             double[] row2ToSwap = new double[] { 16, 29, 98, 3 };
@@ -77,7 +126,7 @@ namespace GeneticAlgorithmTest
         [Fact]
         public void GetDeterminant7x7()
         {
-            var matrix = Matrix.MatrixRandom(20, 7, 1);
+            var matrix = Matrix.MatrixRandom(20, 7);
             var squareMatrix = Matrix.GetSquareMatrix(matrix, 20, 7);
             double[] row1ToSwap = new double[] { 1, 2, 1, 1, 1, 1, 1 };
             double[] row2ToSwap = new double[] { 1, 1, 2, 1, 1, 1, 1 };

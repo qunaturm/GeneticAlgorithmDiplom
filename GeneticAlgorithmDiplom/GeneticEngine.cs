@@ -11,7 +11,6 @@ namespace GeneticAlgorithmDiplom
     public class GeneticEngine
     {
         public FitnessFunction fitnessFunction { get; set; }
-        // public int genomLength { get; set; } //Длина генома в битах
         public long generationCount { get; set; } //Кол-во поколений
         public int individualCount { get; set; } //Кол-во Геномов(Индивидов,Особей) в поколении
         public SelectionType selectionType { get; set; } //Тип Селекции
@@ -22,7 +21,7 @@ namespace GeneticAlgorithmDiplom
         public int vectorsAmount { get; set; }
 
         /// <summary>
-        /// Тратата
+        /// Инициализация движка ГА с пользовательскими параметрами
         /// </summary>
         /// <param name="fitnessFunction">Fitness function</param>
         /// <param name="individualCount">Количество особей в поколении</param>
@@ -33,7 +32,6 @@ namespace GeneticAlgorithmDiplom
         /// <param name="elementInVector">Количество столбцов</param>
         /// <param name="vectorsAmount">Количество строк</param>
         public GeneticEngine(FitnessFunction fitnessFunction,
-                             //int genomLength,
                              long generationCount,
                              int individualCount,
                              SelectionType selectionType,
@@ -44,7 +42,6 @@ namespace GeneticAlgorithmDiplom
                               int vectorsAmount)
         {
             this.fitnessFunction = fitnessFunction;
-            //this.genomLength = genomLength;
             this.generationCount = generationCount;
             this.generationCount = generationCount;
             this.individualCount = individualCount;
@@ -103,9 +100,7 @@ namespace GeneticAlgorithmDiplom
                         {
                             if (counter % 2 == 0)
                             {
-                                if (double.IsNaN(individual.determinant) == true)
-                                {
-                                }
+                                if (double.IsNaN(individual.determinant) == true) { }
                                 else
                                 {
                                     firstTourney.Add(individual);
@@ -114,9 +109,7 @@ namespace GeneticAlgorithmDiplom
                             }
                             else
                             {
-                                if (double.IsNaN(individual.determinant) == true)
-                                {
-                                }
+                                if (double.IsNaN(individual.determinant) == true) { }
                                 else
                                 {
                                     secondTourney.Add(individual);
@@ -128,6 +121,7 @@ namespace GeneticAlgorithmDiplom
                         firstTourney = Individual.MergeSort(firstTourney);
                         secondTourney = Individual.MergeSort(secondTourney);
 
+                        if (firstTourney.Count <= bestFromTourney / 2|| secondTourney.Count <= bestFromTourney / 2) throw new Exception("not enough individeals");
                         for (int i = firstTourney.Count - 1; i >= firstTourney.Count  - bestFromTourney / 2; --i)
                         {
                             bestIndividuals.Add(firstTourney[i]);
@@ -148,9 +142,11 @@ namespace GeneticAlgorithmDiplom
             List<Individual> children = new List<Individual>();
             switch(crossingType)
             {
-                case CrossingType.One_Point_Recombination:
+                case CrossingType.One_Point_Crossover:
+                {
+                    var random = new Random();
+                    while(parents.Count > 0)
                     {
-                        var random = new Random();
                         // get two parent
                         var firstParent = parents[random.Next(0, parents.Count)];
                         parents.Remove(firstParent);
@@ -168,8 +164,74 @@ namespace GeneticAlgorithmDiplom
 
                         children.Add(new Individual { matrix = child1Matrix, determinant = child1Det });
                         children.Add(new Individual { matrix = child2Matrix, determinant = child2Det });
-                        break;
+
                     }
+                    break;
+                }
+                case CrossingType.Two_Point_Crossover:
+                {
+                    var random = new Random();
+                    while (parents.Count > 0)
+                    {
+                        // get two parent
+                        var firstParent = parents[random.Next(0, parents.Count)];
+                        parents.Remove(firstParent);
+                        var secondParent = parents[random.Next(0, parents.Count)];
+                        parents.Remove(secondParent);
+
+                        //get indexes of chromosome for children
+                        var firstHalf = random.Next(1, firstParent.matrix.Length - 2);
+                        var secondHalf = 0;
+                        secondHalf = firstHalf < firstParent.matrix.Length ? secondHalf = random.Next(firstHalf + 1, firstParent.matrix.Length - 2) : secondHalf = random.Next(1, firstHalf);
+
+                        var listTwoChildren = CopyColumn(firstParent.matrix, secondParent.matrix, firstHalf, secondHalf);
+
+                        children.Add(listTwoChildren[0]);
+                        children.Add(listTwoChildren[1]);
+
+                    }
+                    break;
+                }
+
+                case CrossingType.Shuffler_Crossover:
+                {
+                        var random = new Random();
+                        while (parents.Count > 0)
+                        {
+                            // get two parents index
+                            var firstParentIndex = random.Next(0, parents.Count);
+                            var secondParentIndex = random.Next(0, parents.Count);
+                            // eliminate repeat
+                            while(secondParentIndex == firstParentIndex)
+                            {
+                                secondParentIndex = random.Next(0, parents.Count);
+                            }
+
+                            // get parents
+                            var firstParent = parents[firstParentIndex];
+                            var secondParent = parents[secondParentIndex];
+                            var half = random.Next(1,  parents[firstParentIndex].matrix.Length - 1);
+                            var firstParentMatrix = firstParent.matrix;
+                            var secondParentMatrix = secondParent.matrix;
+
+                            // remove parents from initial sample
+                            parents.Remove(firstParent);
+                            parents.Remove(secondParent);
+                            // swap genom for both
+                            Swap(ref firstParentMatrix, ref secondParentMatrix, half);
+
+                            // get first child data
+                            var child1Matrix = CopyColumn(firstParentMatrix, secondParentMatrix, random.Next(0, firstParentMatrix.Length - 1));
+                            var child1Det = GetDeterminant(child1Matrix);
+                            children.Add(new Individual { matrix = child1Matrix, determinant = child1Det } );
+
+                            //get second child data
+                            var child2Matrix = CopyColumn(firstParentMatrix, secondParentMatrix, random.Next(0, firstParentMatrix.Length - 1));
+                            var child2Det = GetDeterminant(child2Matrix);
+                            children.Add(new Individual { matrix = child2Matrix, determinant = child2Det });
+                        }
+                        break;
+                }
             }
             return children;
         }
@@ -198,8 +260,51 @@ namespace GeneticAlgorithmDiplom
                     result[i][j] = sourceRight[i][j];
                 }
             }
-
             return result;
+        }
+
+        public static List<Individual> CopyColumn(double[][] sourceLeft, double[][] sourceRight, int firstIndex, int secondIndex)
+        {
+            var result1 = new double[sourceLeft.Length][];
+            var result2 = new double[sourceLeft.Length][];
+
+            for (int i = 0; i < sourceLeft.Length; ++i)
+            {
+                result1[i] = new double[sourceLeft.Length];
+                result2[i] = new double[sourceLeft.Length];
+                for (int j = 0; j < firstIndex; ++j)
+                {
+                    result1[i][j] = sourceLeft[i][j];
+                    result2[i][j] = sourceRight[i][j];
+                }
+            }
+
+            for (int i = 0; i < sourceLeft.Length; ++i)
+            {
+                for (var j = firstIndex; j < secondIndex; ++j)
+                {
+                    result1[i][j] = sourceRight[i][j];
+                    result2[i][j] = sourceLeft[i][j];
+                }
+            }
+
+            for (int i = 0; i < sourceLeft.Length; ++i)
+            {
+                for (var j = secondIndex; j < sourceLeft.Length; ++j)
+                {
+                    result1[i][j] = sourceLeft[i][j];
+                    result2[i][j] = sourceRight[i][j];
+                }
+            }
+            var child1 = new Individual { matrix = result1 };
+            child1.determinant = GetDeterminant(child1.matrix);
+            var child2 = new Individual { matrix = result2 };
+            child2.determinant = GetDeterminant(child2.matrix);
+
+            var list = new List<Individual>();
+            list.Add(child1);
+            list.Add(child2);
+            return list;
         }
     }
 }

@@ -4,19 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static GeneticAlgorithmDiplom.SelectionType;
-using static GeneticAlgorithmDiplom.Matrix;
+using static GeneticAlgorithmDiplom.MatrixOperations;
 
 namespace GeneticAlgorithmDiplom
 {
     public class GeneticEngine
     {
+        private static double stddev = 0.5;
         public FitnessFunction fitnessFunction { get; set; }
         public long generationCount { get; set; } //Кол-во поколений
-        public int individualCount { get; set; } //Кол-во Геномов(Индивидов,Особей) в поколении
-        public SelectionType selectionType { get; set; } //Тип Селекции
-        public CrossingType crossingType { get; set; } //Тип Скрещивания
+        public int individualCount { get; set; } //Кол-во индивидов в поколении
+        public SelectionType selectionType { get; set; } //Тип селекции
+        public CrossingType crossingType { get; set; } //Тип скрещивания
         public MutationType mutationType { get; set; } // Тип мутации
-        public bool useMutation { get; set; } //Использовать мутацю
+        public bool useMutation { get; set; } //Использовать мутацию
         public double mutationPercent { get; set; } //Как часто происходит мутация
         public int elementInVector { get; set; }
         public int vectorsAmount { get; set; }
@@ -137,6 +138,12 @@ namespace GeneticAlgorithmDiplom
             throw new Exception("cannot make selection process");
         }
 
+        /// <summary>
+        /// Метод скрещивания. Поддерживает 3 вида: одноточечное скрещивание,
+        /// двухточечное и перетасовочное(shuffler)
+        /// </summary>
+        /// <param name="parents"></param>
+        /// <returns></returns>
         public List<Individual> CrossingProcess(List<Individual> parents)
         {
             List<Individual> children = new List<Individual>();
@@ -235,45 +242,142 @@ namespace GeneticAlgorithmDiplom
             return children;
         }
 
+        /// <summary>
+        /// Мутация. Реализует 3 вида мутации: обменом,
+        /// перетасовкой и вещественную с использованием распределения Гаусса
+        /// </summary>
+        /// <param name="individuals"></param>
+        /// <returns></returns>
         public List<Individual> MutationProces(List<Individual> individuals)
         {
             var mutated = new List<Individual>();
+            var random = new Random();
+            var mutationCounter = 0;
             switch (mutationType)
             {
                 case MutationType.ExchangeMutation:
+                {
+                    foreach(var individ in individuals)
                     {
-                        var random = new Random();
-                        var mutationCounter = 0;
-                        foreach(var individ in individuals)
+                        var willMutate = random.NextDouble();
+                        if (willMutate > mutationPercent)
+                        {
+                            // get indexex of chromosome to exchange
+                            var firstChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
+                            var secondChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
+
+                            // eliminate repeat
+                            while(secondChromosomeIndex == firstChromosomeIndex)
+                            {
+                                secondChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
+                            }
+
+                            //exchange chromosomes
+                            var individMatrix = individ.matrix;
+                            SwapColls(ref individMatrix, firstChromosomeIndex, secondChromosomeIndex);
+                            individ.matrix = individMatrix;
+                            mutationCounter++;
+                        }
+                        mutated.Add(individ);
+                    }
+                    break;
+                }
+                case MutationType.ShufflingMutation:
+                {
+                    foreach (var individ in individuals)
+                    {
+                        var willMutate = random.NextDouble();
+                        if (willMutate > mutationPercent)
+                        {
+                            // get indexes of chromosome to exchange
+                            var firstChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
+                            var secondChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
+
+                            // eliminate repeat
+                            while (secondChromosomeIndex == firstChromosomeIndex)
+                            {
+                                secondChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
+                            }
+
+                            var amountOfChromosomesToExchange = firstChromosomeIndex > secondChromosomeIndex ? firstChromosomeIndex - secondChromosomeIndex + 1 : secondChromosomeIndex - firstChromosomeIndex + 1;
+                                
+                            //exchange chromosomes
+                            while (amountOfChromosomesToExchange > 1 && firstChromosomeIndex + 1 <= secondChromosomeIndex)
+                            {
+                                var individMatrix = individ.matrix;
+                                SwapColls(ref individMatrix, firstChromosomeIndex, random.Next(firstChromosomeIndex + 1, secondChromosomeIndex));
+                                individ.matrix = individMatrix;
+                                firstChromosomeIndex++;
+                                amountOfChromosomesToExchange--;
+                            }
+                            mutationCounter++;
+                        }
+                        mutated.Add(individ);
+                    }
+                    break;
+                }
+                case MutationType.ApproximateMutation:
+                    {
+                        foreach (var individ in individuals)
                         {
                             var willMutate = random.NextDouble();
                             if (willMutate > mutationPercent)
                             {
-                                // get indexex of chromosome to exchange
-                                var firstChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
-                                var secondChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
-                                // eliminate repeat
-                                while(secondChromosomeIndex == firstChromosomeIndex)
-                                {
-                                    secondChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
-                                }
-
-                                //exchange chromosomes
+                                // get chromosome to exchange
+                                var chromosomeToExchange = random.Next(0, individ.matrix.Length - 1);
+                                
+                                // exchange chromosomes
+                                double newValue = 0.0;
                                 var individMatrix = individ.matrix;
-                                SwapColls(ref individMatrix, firstChromosomeIndex, secondChromosomeIndex);
+                                for (int i = 0; i < individMatrix.Length; i++)
+                                {
+                                    newValue = GaussForShufflerMutation(individ.matrix[chromosomeToExchange]);
+                                    individMatrix[i][chromosomeToExchange] = newValue;
+                                }
                                 individ.matrix = individMatrix;
                                 mutationCounter++;
                             }
+                            mutated.Add(individ);
                         }
-                        break;
-                    }
-                case MutationType.ShufflingMutation:
-                    {
+
                         break;
                     }
             }
             return mutated;
         }
+
+        #region [ methods for shuffler mutation ]
+        private double GaussForShufflerMutation(double[] chromosome)
+        {
+            var random = new Random();
+            var mutationRate = 2;
+            double mean = 0;
+            for (int i = 0; i < chromosome.Length; i++)
+            {
+                mean += chromosome[i];
+            }
+            mean /= chromosome.Length;
+            return Math.Round(SampleGaussian(random, mean, stddev));
+        }
+
+        /// <summary>
+        /// Распределение Гаусса
+        /// </summary>
+        /// <param name="random"></param>
+        /// <param name="mean">Среднее значение</param>
+        /// <param name="stddev">Стандартное отклонение</param>
+        /// <returns></returns>
+        public static double SampleGaussian(Random random, double mean, double stddev)
+        {
+            // The method requires sampling from a uniform random of (0,1]
+            // but Random.NextDouble() returns a sample of [0,1).
+            double x1 = 1 - random.NextDouble();
+            double x2 = 1 - random.NextDouble();
+
+            double y1 = Math.Sqrt(-2.0 * Math.Log(x1)) * Math.Cos(2.0 * Math.PI * x2);
+            return y1 * stddev + mean;
+        }
+        #endregion
 
         #region [ methods for crossing ]
         public static double[][] CopyColumn(double[][] sourceLeft, double[][] sourceRight, int index)

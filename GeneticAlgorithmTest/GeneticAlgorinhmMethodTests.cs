@@ -54,7 +54,7 @@ namespace GeneticAlgorithmTest
         [Fact]
         public void CopyColumn()
         {
-            double[][] m1 = Matrix.CreateMatrix(3, 3);
+            double[][] m1 = MatrixOperations.CreateMatrix(3, 3);
 
             m1[0][0] = 1;
             m1[0][1] = 1;
@@ -68,7 +68,7 @@ namespace GeneticAlgorithmTest
             m1[2][1] = 1;
             m1[2][2] = 1;
 
-            double[][] m2 = Matrix.CreateMatrix(3, 3);
+            double[][] m2 = MatrixOperations.CreateMatrix(3, 3);
 
             m2[0][0] = 2;
             m2[0][1] = 2;
@@ -88,7 +88,7 @@ namespace GeneticAlgorithmTest
         [Fact]
         public void CrossingProcessOnePoint()
         {
-            double[][] m1 = Matrix.CreateMatrix(3, 3);
+            double[][] m1 = MatrixOperations.CreateMatrix(3, 3);
 
             var fitnessFunction = new FitnessFunction();
             var ga = new GeneticEngine(
@@ -125,7 +125,6 @@ namespace GeneticAlgorithmTest
             var bestParents = ga.SelectionProcess(8);
             var children = ga.CrossingProcess(bestParents);
             children.Count.Should().Be(8);
-
         }
 
         [Fact]
@@ -146,7 +145,47 @@ namespace GeneticAlgorithmTest
             var bestParents = ga.SelectionProcess(8);
             var children = ga.CrossingProcess(bestParents);
             children.Count.Should().Be(8);
+        }
 
+        [Fact]
+        public void MutationShuffling()
+        {
+            var fitnessFunction = new FitnessFunction();
+            var ga = new GeneticEngine(
+                         fitnessFunction,
+                         100,
+                         16,
+                         SelectionType.Tourney,
+                         CrossingType.Shuffler_Crossover,
+                         MutationType.ShufflingMutation,
+                         true,
+                         0.5,
+                         90,
+                         7);
+            var bestParents = ga.SelectionProcess(8);
+            var children = ga.CrossingProcess(bestParents);
+            var mutated = ga.MutationProces(children);
+            mutated.Count.Should().Be(8);
+        }
+        [Fact]
+        public void MutationApproximation()
+        {
+            var fitnessFunction = new FitnessFunction();
+            var ga = new GeneticEngine(
+                         fitnessFunction,
+                         100,
+                         16,
+                         SelectionType.Tourney,
+                         CrossingType.Shuffler_Crossover,
+                         MutationType.ApproximateMutation,
+                         true,
+                         0.5,
+                         90,
+                         7);
+            var bestParents = ga.SelectionProcess(8);
+            var children = ga.CrossingProcess(bestParents);
+            var mutated = ga.MutationProces(children);
+            mutated.Count.Should().Be(8);
         }
     }
 }

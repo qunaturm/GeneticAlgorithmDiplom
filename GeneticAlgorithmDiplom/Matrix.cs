@@ -1,4 +1,5 @@
-﻿namespace GeneticAlgorithmDiplom
+﻿using System;
+namespace GeneticAlgorithmDiplom
 {
     public class Matrix
     {
@@ -62,12 +63,19 @@
             return row;
         }
 
-        public static void SwapTwoRows(ref double[][] matrix, double[] newRow, int index)
+        public static void Swap(ref double[][] matrix, double[] newRow, int index)
         {
             for (int i = 0; i < matrix.Length; ++i)
             {
                 matrix[index][i] = newRow[i];
             }
+        }
+
+        public static void Swap(ref double[][] m1, ref double[][] m2, int index)
+        {
+            var tmp = m1[index];
+            m1[index] = m2[index];
+            m2[index] = tmp;
         }
 
         public static double[][] GetSquareMatrix(double[][] vectors, int vectorRow, int vectorCol)
@@ -152,7 +160,7 @@
                 for (int i = j + 1; i < size; ++i)
                 {
                     double current = duplicatedMatrix[i][j] / duplicatedMatrix[j][j];
-                    if (double.IsNaN(current))
+                    if (double.IsNaN(current) || Double.IsInfinity(current))
                     {
                         duplicatedMatrix[i][j] = 0;
                     }
@@ -171,7 +179,6 @@
 
         /// <summary>
         /// Находит массив x, который при умножении на матрицу LU дает массив b.
-        /// Решает систему уравнений.
         /// </summary>
         /// <param name="luMatrix"></param>
         /// <param name="b"></param>
@@ -190,7 +197,15 @@
                 }
                 x[i] = sum;
             }
-            x[size - 1] /= luMatrix[size - 1][size - 1];
+            var current = luMatrix[size - 1][size - 1];
+            if (current == 0)
+            {
+                x[size - 1] = 0;
+            }
+            else
+            {
+                x[size - 1] /= luMatrix[size - 1][size - 1];
+            }
             for (int i = size - 2; i >= 0; --i)
             {
                 double sum = x[i];
@@ -198,17 +213,25 @@
                 {
                     sum -= luMatrix[i][j] * x[j];
                 }
-                x[i] = sum / luMatrix[i][i];
+                current = luMatrix[i][i];
+                if (current == 0)
+                {
+                    x[i] = 0;
+                }
+                else
+                {
+                    x[i] = sum / luMatrix[i][i];
+                }
             }
             return x;
         }
 
         /// <summary>
-        /// Алгоритм обращения/ Результат перемножения матрицы M и ее обращения 
-        /// является единичной матрицей. Метод MatrixInverse в основном отвечает за решение 
-        /// системы уравнений Ax = b, где A — матрица разложения LU , а константы b равны 
-        /// либо 1, либо 0 и соответствуют единичной матрице. Заметьте, что MatrixInverse 
-        /// использует массив perm, возвращаемый после вызова MatrixDecompose.
+        /// Алгоритм обращения. Результат перемножения матрицы M и ее обращения 
+        /// является единичной матрицей. Метод Inverse в основном отвечает за решение 
+        /// системы уравнений Ax = b, где A — матрица разложения LU, а константы b равны 
+        /// либо 1, либо 0 и соответствуют единичной матрице. Inverse 
+        /// использует массив perm, возвращаемый после вызова Decompose.
         /// </summary>
         /// <param name="m"></param>
         /// <returns></returns>

@@ -1,5 +1,4 @@
-﻿using System;
-namespace GeneticAlgorithmDiplom
+﻿namespace GeneticAlgorithmDiplom
 {
     public class Matrix
     {
@@ -63,7 +62,7 @@ namespace GeneticAlgorithmDiplom
             return row;
         }
 
-        public static void Swap(ref double[][] matrix, double[] newRow, int index)
+        public static void SwapRows(ref double[][] matrix, double[] newRow, int index)
         {
             for (int i = 0; i < matrix.Length; ++i)
             {
@@ -71,11 +70,31 @@ namespace GeneticAlgorithmDiplom
             }
         }
 
-        public static void Swap(ref double[][] m1, ref double[][] m2, int index)
+        public static void SwapRows(ref double[][] m1, ref double[][] m2, int index)
         {
             var tmp = m1[index];
             m1[index] = m2[index];
             m2[index] = tmp;
+        }
+
+        public static void SwapColls(ref double[][] m1, ref double[][] m2, int index)
+        {
+            for (int i = 0; i < m2.Length; ++i)
+            {
+                var tmp = m1[i][index];
+                m1[i][index] = m2[i][index];
+                m2[i][index] = tmp;
+            }
+        }
+
+        public static void SwapColls(ref double[][] m, int firstIndex, int secondIndex)
+        {
+            for (int i = 0; i < m.Length; ++i)
+            {
+                var tmp = m[i][firstIndex];
+                m[i][firstIndex] = m[i][secondIndex];
+                m[i][secondIndex] = tmp;
+            }
         }
 
         public static double[][] GetSquareMatrix(double[][] vectors, int vectorRow, int vectorCol)

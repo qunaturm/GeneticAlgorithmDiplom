@@ -1,4 +1,5 @@
-﻿namespace GeneticAlgorithmDiplom
+﻿
+namespace GeneticAlgorithmDiplom
 {
     public class FitnessFunction
     {
@@ -22,9 +23,8 @@
 
     public enum CrossingType
     {
-        One_Point_Recombination,
-        Two_Point_Recombination,
-        Elementwise_Recombination,
-        One_Element_Exchange
+        One_Point_Crossover,
+        Two_Point_Crossover,
+        Shuffler_Crossover
     }
 }

@@ -13,7 +13,7 @@ namespace GeneticAlgorithmTest
             var matrix = Matrix.MatrixRandom(5, 2);
             var squareMatrix = Matrix.GetSquareMatrix(matrix, 5, 2);
             double[] rowToSwap = new double[] { 99, 99 };
-            Matrix.SwapTwoRows(ref squareMatrix, rowToSwap, 0);
+            Matrix.Swap(ref squareMatrix, rowToSwap, 0);
             squareMatrix[0][0].Should().Be(99);
             squareMatrix[0][1].Should().Be(99);
         }
@@ -27,9 +27,9 @@ namespace GeneticAlgorithmTest
             double[] row2ToSwap = new double[] { 16, 29, 98 };
             double[] row3ToSwap = new double[] { 63, 11, 74 };
 
-            Matrix.SwapTwoRows(ref squareMatrix, row1ToSwap, 0);
-            Matrix.SwapTwoRows(ref squareMatrix, row2ToSwap, 1);
-            Matrix.SwapTwoRows(ref squareMatrix, row3ToSwap, 2);
+            Matrix.Swap(ref squareMatrix, row1ToSwap, 0);
+            Matrix.Swap(ref squareMatrix, row2ToSwap, 1);
+            Matrix.Swap(ref squareMatrix, row3ToSwap, 2);
             var determinant = Matrix.GetDeterminant(squareMatrix);
             Math.Round(determinant).Should().Be(24380);
         }
@@ -108,10 +108,10 @@ namespace GeneticAlgorithmTest
             double[] row4ToSwap = new double[] { 91, 33, 2, 86 };
 
 
-            Matrix.SwapTwoRows(ref squareMatrix, row1ToSwap, 0);
-            Matrix.SwapTwoRows(ref squareMatrix, row2ToSwap, 1);
-            Matrix.SwapTwoRows(ref squareMatrix, row3ToSwap, 2);
-            Matrix.SwapTwoRows(ref squareMatrix, row4ToSwap, 3);
+            Matrix.Swap(ref squareMatrix, row1ToSwap, 0);
+            Matrix.Swap(ref squareMatrix, row2ToSwap, 1);
+            Matrix.Swap(ref squareMatrix, row3ToSwap, 2);
+            Matrix.Swap(ref squareMatrix, row4ToSwap, 3);
             var determinant = Matrix.GetDeterminant(squareMatrix);
             Math.Round(determinant).Should().Be(-13575088);
         }
@@ -129,13 +129,13 @@ namespace GeneticAlgorithmTest
             double[] row6ToSwap = new double[] { 1, 1, 1, 1, 1, 1, 2 };
             double[] row7ToSwap = new double[] { 2, 1, 1, 1, 1, 1, 1 };
 
-            Matrix.SwapTwoRows(ref squareMatrix, row1ToSwap, 0);
-            Matrix.SwapTwoRows(ref squareMatrix, row2ToSwap, 1);
-            Matrix.SwapTwoRows(ref squareMatrix, row3ToSwap, 2);
-            Matrix.SwapTwoRows(ref squareMatrix, row4ToSwap, 3);
-            Matrix.SwapTwoRows(ref squareMatrix, row5ToSwap, 4);
-            Matrix.SwapTwoRows(ref squareMatrix, row6ToSwap, 5);
-            Matrix.SwapTwoRows(ref squareMatrix, row7ToSwap, 6);
+            Matrix.Swap(ref squareMatrix, row1ToSwap, 0);
+            Matrix.Swap(ref squareMatrix, row2ToSwap, 1);
+            Matrix.Swap(ref squareMatrix, row3ToSwap, 2);
+            Matrix.Swap(ref squareMatrix, row4ToSwap, 3);
+            Matrix.Swap(ref squareMatrix, row5ToSwap, 4);
+            Matrix.Swap(ref squareMatrix, row6ToSwap, 5);
+            Matrix.Swap(ref squareMatrix, row7ToSwap, 6);
 
             var determinant = Matrix.GetDeterminant(squareMatrix);
             Math.Round(determinant).Should().Be(8);

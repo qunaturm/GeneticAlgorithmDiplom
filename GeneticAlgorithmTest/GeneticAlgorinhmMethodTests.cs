@@ -41,13 +41,13 @@ namespace GeneticAlgorithmTest
                          100,
                          10,
                          SelectionType.Tourney,
-                         CrossingType.One_Element_Exchange,
+                         CrossingType.One_Point_Crossover,
                          true,
                          0.5,
                          30,
                          3);
             var bestParents = ga.SelectionProcess(4);
-            var a = 0;
+            bestParents.Count.Should().Be(4);
         }
 
         [Fact]
@@ -96,14 +96,53 @@ namespace GeneticAlgorithmTest
                          100,
                          10,
                          SelectionType.Tourney,
-                         CrossingType.One_Point_Recombination,
+                         CrossingType.One_Point_Crossover,
                          true,
                          0.5,
                          30,
                          3);
             var bestParents = ga.SelectionProcess(4);
             var children = ga.CrossingProcess(bestParents);
-            var a = 1;
+            children.Count.Should().Be(4);
+        }
+
+        [Fact]
+        public void CrossingProcessTwoPoint()
+        {
+            var fitnessFunction = new FitnessFunction();
+            var ga = new GeneticEngine(
+                         fitnessFunction,
+                         100,
+                         16,
+                         SelectionType.Tourney,
+                         CrossingType.Two_Point_Crossover,
+                         true,
+                         0.5,
+                         90,
+                         7);
+            var bestParents = ga.SelectionProcess(8);
+            var children = ga.CrossingProcess(bestParents);
+            children.Count.Should().Be(8);
+
+        }
+
+        [Fact]
+        public void CrossingShuffler()
+        {
+            var fitnessFunction = new FitnessFunction();
+            var ga = new GeneticEngine(
+                         fitnessFunction,
+                         100,
+                         16,
+                         SelectionType.Tourney,
+                         CrossingType.Shuffler_Crossover,
+                         true,
+                         0.5,
+                         90,
+                         7);
+            var bestParents = ga.SelectionProcess(8);
+            var children = ga.CrossingProcess(bestParents);
+            children.Count.Should().Be(8);
 
         }
     }

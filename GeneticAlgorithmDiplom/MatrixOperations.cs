@@ -1,6 +1,6 @@
 ﻿namespace GeneticAlgorithmDiplom
 {
-    public class Matrix
+    public class MatrixOperations
     {
 
         public static double[][] CreateMatrix(int rows, int cols)
@@ -48,7 +48,7 @@
         }
         #endregion
 
-        public double[] getRow(double[][] matrix, int rowNumber)
+        public double[] GetRow(double[][] matrix, int rowNumber)
         {
             var size = matrix.Length;
             double[] row = new double[size];
@@ -60,6 +60,16 @@
                 }
             }
             return row;
+        }
+
+        public double[] GetCol(double[][] m, int index)
+        {
+            double[] col = new double[m.Length];
+            for (int i = 0; i < m.Length; ++i)
+            {
+                col[i] = m[index][i];
+            }
+            return col;
         }
 
         public static void SwapRows(ref double[][] matrix, double[] newRow, int index)

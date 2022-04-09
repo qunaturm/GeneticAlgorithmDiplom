@@ -42,6 +42,7 @@ namespace GeneticAlgorithmTest
                          10,
                          SelectionType.Tourney,
                          CrossingType.One_Point_Crossover,
+                         MutationType.ExchangeMutation,
                          true,
                          0.5,
                          30,
@@ -82,7 +83,6 @@ namespace GeneticAlgorithmTest
             m2[2][2] = 2;
 
             var res = GeneticEngine.CopyColumn(m1, m2, 1);
-            int a = 1;
         }
 
         [Fact]
@@ -97,6 +97,7 @@ namespace GeneticAlgorithmTest
                          10,
                          SelectionType.Tourney,
                          CrossingType.One_Point_Crossover,
+                         MutationType.ExchangeMutation,
                          true,
                          0.5,
                          30,
@@ -116,6 +117,7 @@ namespace GeneticAlgorithmTest
                          16,
                          SelectionType.Tourney,
                          CrossingType.Two_Point_Crossover,
+                         MutationType.ExchangeMutation,
                          true,
                          0.5,
                          90,
@@ -136,6 +138,7 @@ namespace GeneticAlgorithmTest
                          16,
                          SelectionType.Tourney,
                          CrossingType.Shuffler_Crossover,
+                         MutationType.ExchangeMutation,
                          true,
                          0.5,
                          90,

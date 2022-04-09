@@ -1,5 +1,4 @@
-﻿
-namespace GeneticAlgorithmDiplom
+﻿namespace GeneticAlgorithmDiplom
 {
     public class FitnessFunction
     {
@@ -13,18 +12,5 @@ namespace GeneticAlgorithmDiplom
             var fitnessValue = 1.0;
             return fitnessValue;
         }
-    }
-
-    public enum SelectionType
-    {
-        Tourney,
-        Roulette_Wheel
-    }
-
-    public enum CrossingType
-    {
-        One_Point_Crossover,
-        Two_Point_Crossover,
-        Shuffler_Crossover
     }
 }

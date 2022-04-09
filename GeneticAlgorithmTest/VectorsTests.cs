@@ -13,9 +13,73 @@ namespace GeneticAlgorithmTest
             var matrix = Matrix.MatrixRandom(5, 2);
             var squareMatrix = Matrix.GetSquareMatrix(matrix, 5, 2);
             double[] rowToSwap = new double[] { 99, 99 };
-            Matrix.Swap(ref squareMatrix, rowToSwap, 0);
+            Matrix.SwapRows(ref squareMatrix, rowToSwap, 0);
             squareMatrix[0][0].Should().Be(99);
             squareMatrix[0][1].Should().Be(99);
+        }
+
+        [Fact]
+        public void SwapTwoColls()
+        {
+            double[][] m1 = Matrix.CreateMatrix(3, 3);
+
+            m1[0][0] = 1;
+            m1[0][1] = 1;
+            m1[0][2] = 1;
+
+            m1[1][0] = 1;
+            m1[1][1] = 1;
+            m1[1][2] = 1;
+
+            m1[2][0] = 1;
+            m1[2][1] = 1;
+            m1[2][2] = 1;
+
+            double[][] m2 = Matrix.CreateMatrix(3, 3);
+
+            m2[0][0] = 2;
+            m2[0][1] = 2;
+            m2[0][2] = 2;
+
+            m2[1][0] = 2;
+            m2[1][1] = 2;
+            m2[1][2] = 2;
+
+            m2[2][0] = 2;
+            m2[2][1] = 2;
+            m2[2][2] = 2;
+
+            Matrix.SwapColls(ref m1, ref m2, 1);
+            for (int i = 0; i < 3; ++i)
+            {
+                m1[i][1].Should().Be(2);
+                m2[i][1].Should().Be(1);
+            }
+        }
+
+        [Fact]
+        public void SwapTwoCollsInOneMatrix()
+        {
+            double[][] m1 = Matrix.CreateMatrix(3, 3);
+
+            m1[0][0] = 1;
+            m1[0][1] = 2;
+            m1[0][2] = 3;
+
+            m1[1][0] = 1;
+            m1[1][1] = 2;
+            m1[1][2] = 3;
+
+            m1[2][0] = 1;
+            m1[2][1] = 2;
+            m1[2][2] = 3;
+
+            Matrix.SwapColls(ref m1, 0, 2);
+            for (int i = 0; i < 3; ++i)
+            {
+                m1[i][0].Should().Be(3);
+                m1[i][2].Should().Be(1);
+            }
         }
 
         [Fact]
@@ -27,36 +91,15 @@ namespace GeneticAlgorithmTest
             double[] row2ToSwap = new double[] { 16, 29, 98 };
             double[] row3ToSwap = new double[] { 63, 11, 74 };
 
-            Matrix.Swap(ref squareMatrix, row1ToSwap, 0);
-            Matrix.Swap(ref squareMatrix, row2ToSwap, 1);
-            Matrix.Swap(ref squareMatrix, row3ToSwap, 2);
+            Matrix.SwapRows(ref squareMatrix, row1ToSwap, 0);
+            Matrix.SwapRows(ref squareMatrix, row2ToSwap, 1);
+            Matrix.SwapRows(ref squareMatrix, row3ToSwap, 2);
             var determinant = Matrix.GetDeterminant(squareMatrix);
             Math.Round(determinant).Should().Be(24380);
         }
 
         [Fact]
-        public void GetDeterminant3x3_TestMatrix()
-        {
-            double[][] m = MatrixExample.MatrixExample.MatrixCreate(3, 3);
-
-            m[0][0] = 4;
-            m[0][1] = 8;
-            m[0][2] = 12;
-
-            m[1][0] = 16;
-            m[1][1] = 29;
-            m[1][2] = 98;
-
-            m[2][0] = 63;
-            m[2][1] = 11;
-            m[2][2] = 74;
-
-            var det = MatrixExample.MatrixExample.MatrixDeterminant(m);
-            det.Should().BeInRange(24380, 24381);
-        }
-
-        [Fact]
-        public void GetDeterminant3x3_Matrix_v2()
+        public void GetDeterminant3x3_v2()
         {
             double[][] m = Matrix.CreateMatrix(3, 3);
 
@@ -77,27 +120,6 @@ namespace GeneticAlgorithmTest
         }
 
         [Fact]
-        public void GetDeterminant3x3_TestMatrix_v2()
-        {
-            double[][] m = MatrixExample.MatrixExample.MatrixCreate(3, 3);
-
-            m[0][0] = 1;
-            m[0][1] = 1;
-            m[0][2] = 1;
-
-            m[1][0] = 1;
-            m[1][1] = 1;
-            m[1][2] = 0;
-
-            m[2][0] = 0;
-            m[2][1] = 1;
-            m[2][2] = 1;
-
-            var det = MatrixExample.MatrixExample.MatrixDeterminant(m);
-            det.Should().BeInRange(1, 1.1);
-        }
-
-        [Fact]
         public void GetDeterminant4x4()
         {
             var matrix = Matrix.MatrixRandom(9, 4);
@@ -108,10 +130,10 @@ namespace GeneticAlgorithmTest
             double[] row4ToSwap = new double[] { 91, 33, 2, 86 };
 
 
-            Matrix.Swap(ref squareMatrix, row1ToSwap, 0);
-            Matrix.Swap(ref squareMatrix, row2ToSwap, 1);
-            Matrix.Swap(ref squareMatrix, row3ToSwap, 2);
-            Matrix.Swap(ref squareMatrix, row4ToSwap, 3);
+            Matrix.SwapRows(ref squareMatrix, row1ToSwap, 0);
+            Matrix.SwapRows(ref squareMatrix, row2ToSwap, 1);
+            Matrix.SwapRows(ref squareMatrix, row3ToSwap, 2);
+            Matrix.SwapRows(ref squareMatrix, row4ToSwap, 3);
             var determinant = Matrix.GetDeterminant(squareMatrix);
             Math.Round(determinant).Should().Be(-13575088);
         }
@@ -129,13 +151,13 @@ namespace GeneticAlgorithmTest
             double[] row6ToSwap = new double[] { 1, 1, 1, 1, 1, 1, 2 };
             double[] row7ToSwap = new double[] { 2, 1, 1, 1, 1, 1, 1 };
 
-            Matrix.Swap(ref squareMatrix, row1ToSwap, 0);
-            Matrix.Swap(ref squareMatrix, row2ToSwap, 1);
-            Matrix.Swap(ref squareMatrix, row3ToSwap, 2);
-            Matrix.Swap(ref squareMatrix, row4ToSwap, 3);
-            Matrix.Swap(ref squareMatrix, row5ToSwap, 4);
-            Matrix.Swap(ref squareMatrix, row6ToSwap, 5);
-            Matrix.Swap(ref squareMatrix, row7ToSwap, 6);
+            Matrix.SwapRows(ref squareMatrix, row1ToSwap, 0);
+            Matrix.SwapRows(ref squareMatrix, row2ToSwap, 1);
+            Matrix.SwapRows(ref squareMatrix, row3ToSwap, 2);
+            Matrix.SwapRows(ref squareMatrix, row4ToSwap, 3);
+            Matrix.SwapRows(ref squareMatrix, row5ToSwap, 4);
+            Matrix.SwapRows(ref squareMatrix, row6ToSwap, 5);
+            Matrix.SwapRows(ref squareMatrix, row7ToSwap, 6);
 
             var determinant = Matrix.GetDeterminant(squareMatrix);
             Math.Round(determinant).Should().Be(8);

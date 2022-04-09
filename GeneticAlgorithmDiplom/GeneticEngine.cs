@@ -15,6 +15,7 @@ namespace GeneticAlgorithmDiplom
         public int individualCount { get; set; } //Кол-во Геномов(Индивидов,Особей) в поколении
         public SelectionType selectionType { get; set; } //Тип Селекции
         public CrossingType crossingType { get; set; } //Тип Скрещивания
+        public MutationType mutationType { get; set; } // Тип мутации
         public bool useMutation { get; set; } //Использовать мутацю
         public double mutationPercent { get; set; } //Как часто происходит мутация
         public int elementInVector { get; set; }
@@ -36,6 +37,7 @@ namespace GeneticAlgorithmDiplom
                              int individualCount,
                              SelectionType selectionType,
                              CrossingType crossingType,
+                             MutationType mutationType,
                              bool useMutation,
                              double mutationPercent,
                              int elementInVector,
@@ -47,6 +49,7 @@ namespace GeneticAlgorithmDiplom
             this.individualCount = individualCount;
             this.selectionType = selectionType;
             this.crossingType = crossingType;
+            this.mutationType = mutationType;
             this.mutationPercent = mutationPercent;
             this.elementInVector = elementInVector;
             this.vectorsAmount = vectorsAmount;
@@ -66,11 +69,8 @@ namespace GeneticAlgorithmDiplom
         }
 
         /// <summary>
-        /// 
+        /// Метод селекции. Реализует два вида селекции: рулетка и турнир
         /// </summary>
-        /// <param name="elementInVector"></param>
-        /// <param name="vectorsAmount"></param>
-        /// <param name="generationAmount"></param>
         /// <param name="bestFromTourney">should be % 2 == 0</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
@@ -188,59 +188,94 @@ namespace GeneticAlgorithmDiplom
 
                         children.Add(listTwoChildren[0]);
                         children.Add(listTwoChildren[1]);
-
                     }
                     break;
                 }
 
                 case CrossingType.Shuffler_Crossover:
                 {
-                        var random = new Random();
-                        while (parents.Count > 0)
+                    var random = new Random();
+                    while (parents.Count > 0)
+                    {
+                        // get two parents index
+                        var firstParentIndex = random.Next(0, parents.Count);
+                        var secondParentIndex = random.Next(0, parents.Count);
+                        // eliminate repeat
+                        while(secondParentIndex == firstParentIndex)
                         {
-                            // get two parents index
-                            var firstParentIndex = random.Next(0, parents.Count);
-                            var secondParentIndex = random.Next(0, parents.Count);
-                            // eliminate repeat
-                            while(secondParentIndex == firstParentIndex)
-                            {
-                                secondParentIndex = random.Next(0, parents.Count);
-                            }
-
-                            // get parents
-                            var firstParent = parents[firstParentIndex];
-                            var secondParent = parents[secondParentIndex];
-                            var half = random.Next(1,  parents[firstParentIndex].matrix.Length - 1);
-                            var firstParentMatrix = firstParent.matrix;
-                            var secondParentMatrix = secondParent.matrix;
-
-                            // remove parents from initial sample
-                            parents.Remove(firstParent);
-                            parents.Remove(secondParent);
-                            // swap genom for both
-                            Swap(ref firstParentMatrix, ref secondParentMatrix, half);
-
-                            // get first child data
-                            var child1Matrix = CopyColumn(firstParentMatrix, secondParentMatrix, random.Next(0, firstParentMatrix.Length - 1));
-                            var child1Det = GetDeterminant(child1Matrix);
-                            children.Add(new Individual { matrix = child1Matrix, determinant = child1Det } );
-
-                            //get second child data
-                            var child2Matrix = CopyColumn(firstParentMatrix, secondParentMatrix, random.Next(0, firstParentMatrix.Length - 1));
-                            var child2Det = GetDeterminant(child2Matrix);
-                            children.Add(new Individual { matrix = child2Matrix, determinant = child2Det });
+                            secondParentIndex = random.Next(0, parents.Count);
                         }
-                        break;
+
+                        // get parents
+                        var firstParent = parents[firstParentIndex];
+                        var secondParent = parents[secondParentIndex];
+                        var half = random.Next(1,  parents[firstParentIndex].matrix.Length - 1);
+                        var firstParentMatrix = firstParent.matrix;
+                        var secondParentMatrix = secondParent.matrix;
+
+                        // remove parents from initial sample
+                        parents.Remove(firstParent);
+                        parents.Remove(secondParent);
+                        // swap genom for both
+                        SwapColls(ref firstParentMatrix, ref secondParentMatrix, half);
+
+                        // get first child data
+                        var child1Matrix = CopyColumn(firstParentMatrix, secondParentMatrix, random.Next(0, firstParentMatrix.Length - 1));
+                        var child1Det = GetDeterminant(child1Matrix);
+                        children.Add(new Individual { matrix = child1Matrix, determinant = child1Det } );
+
+                        //get second child data
+                        var child2Matrix = CopyColumn(firstParentMatrix, secondParentMatrix, random.Next(0, firstParentMatrix.Length - 1));
+                        var child2Det = GetDeterminant(child2Matrix);
+                        children.Add(new Individual { matrix = child2Matrix, determinant = child2Det });
+                    }
+                    break;
                 }
             }
             return children;
         }
 
-        private void MutationProces()
+        public List<Individual> MutationProces(List<Individual> individuals)
         {
+            var mutated = new List<Individual>();
+            switch (mutationType)
+            {
+                case MutationType.ExchangeMutation:
+                    {
+                        var random = new Random();
+                        var mutationCounter = 0;
+                        foreach(var individ in individuals)
+                        {
+                            var willMutate = random.NextDouble();
+                            if (willMutate > mutationPercent)
+                            {
+                                // get indexex of chromosome to exchange
+                                var firstChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
+                                var secondChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
+                                // eliminate repeat
+                                while(secondChromosomeIndex == firstChromosomeIndex)
+                                {
+                                    secondChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
+                                }
 
+                                //exchange chromosomes
+                                var individMatrix = individ.matrix;
+                                SwapColls(ref individMatrix, firstChromosomeIndex, secondChromosomeIndex);
+                                individ.matrix = individMatrix;
+                                mutationCounter++;
+                            }
+                        }
+                        break;
+                    }
+                case MutationType.ShufflingMutation:
+                    {
+                        break;
+                    }
+            }
+            return mutated;
         }
 
+        #region [ methods for crossing ]
         public static double[][] CopyColumn(double[][] sourceLeft, double[][] sourceRight, int index)
         {
             var result = new double[sourceLeft.Length][];
@@ -306,5 +341,6 @@ namespace GeneticAlgorithmDiplom
             list.Add(child2);
             return list;
         }
+        #endregion
     }
 }

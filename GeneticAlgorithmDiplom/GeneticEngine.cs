@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static GeneticAlgorithmDiplom.SelectionType;
+﻿using static GeneticAlgorithmDiplom.SelectionType;
 using static GeneticAlgorithmDiplom.MatrixOperations;
 
 namespace GeneticAlgorithmDiplom
 {
     public class GeneticEngine
     {
-        private static double stddev = 0.5;
+        private static double stddev = 0.5; // Среднее отклонение для распределения Гаусса
         public FitnessFunction fitnessFunction { get; set; }
         public long generationCount { get; set; } //Кол-во поколений
         public int individualCount { get; set; } //Кол-во индивидов в поколении
@@ -19,6 +14,7 @@ namespace GeneticAlgorithmDiplom
         public MutationType mutationType { get; set; } // Тип мутации
         public bool useMutation { get; set; } //Использовать мутацию
         public double mutationPercent { get; set; } //Как часто происходит мутация
+        public bool enableElitism { get; set; } // Включить элитарность
         public int elementInVector { get; set; }
         public int vectorsAmount { get; set; }
 
@@ -26,11 +22,14 @@ namespace GeneticAlgorithmDiplom
         /// Инициализация движка ГА с пользовательскими параметрами
         /// </summary>
         /// <param name="fitnessFunction">Fitness function</param>
+        /// <param name="generationCount">Количество поколений</param>
         /// <param name="individualCount">Количество особей в поколении</param>
         /// <param name="selectionType">Тип селекции</param>
         /// <param name="crossingType">Тип скрещивания</param>
+        /// <param name="mutationType">Тип мутации</param>
         /// <param name="useMutation">Мутация(да/нет)</param>
         /// <param name="mutationPercent">Вероятность мутации</param>
+        /// <param name="enableElitism">Включить элитарность</param>
         /// <param name="elementInVector">Количество столбцов</param>
         /// <param name="vectorsAmount">Количество строк</param>
         public GeneticEngine(FitnessFunction fitnessFunction,
@@ -41,57 +40,100 @@ namespace GeneticAlgorithmDiplom
                              MutationType mutationType,
                              bool useMutation,
                              double mutationPercent,
+                             bool enableElitism,
                              int elementInVector,
-                              int vectorsAmount)
+                             int vectorsAmount)
         {
             this.fitnessFunction = fitnessFunction;
-            this.generationCount = generationCount;
             this.generationCount = generationCount;
             this.individualCount = individualCount;
             this.selectionType = selectionType;
             this.crossingType = crossingType;
             this.mutationType = mutationType;
+            this.useMutation = useMutation;
             this.mutationPercent = mutationPercent;
+            this.enableElitism = enableElitism;
             this.elementInVector = elementInVector;
             this.vectorsAmount = vectorsAmount;
         }
 
-        private List<Individual> GenerateFirstGeneration()
+        /// <summary>
+        /// Метод запуска работы ГА. Перед выполнением метода необходимо
+        /// инициализировать конструктор класса GeneticEngine
+        /// </summary>
+        /// <returns></returns>
+        public Individual RunGA()
         {
-            var vectors = MatrixRandom(elementInVector, vectorsAmount);
-            var individualsList = new List<Individual>();
-            for (int i = 0; i < individualCount; i++)
+            var bestIndivids = new List<Individual>();
+            var currentGeneration = GenerateFirstGeneration();
+            var list = new List<Individual>();
+            for (int i = 0; i < generationCount; ++i)
             {
-                var squareMatrix = GetSquareMatrix(vectors, elementInVector, vectorsAmount);
-                var det = GetDeterminant(squareMatrix);
-                individualsList.Add(new Individual { matrix =  squareMatrix, determinant = det });
+                currentGeneration = SelectionProcess(currentGeneration, individualCount / 2);
+                currentGeneration = CrossingProcess(currentGeneration);
+                currentGeneration = MutationProces(currentGeneration);
+                var supaBestGenerationIndividuals = currentGeneration.OrderByDescending(u => u.determinant).First();
+                list.Add(supaBestGenerationIndividuals);
+                bestIndivids = Individual.MergeSort(currentGeneration);
+                //Console.WriteLine($"Current generation - {i}");
+                //Console.WriteLine($"Best individ from current generation:");
+                //PrintMatrix(bestIndivids[individualCount - 1].matrix);
+                Console.WriteLine($"Generation {i}, best determinant = {bestIndivids[bestIndivids.Count - 1].determinant}");
+                Console.WriteLine("____________________________");
             }
-            return individualsList;
+            Console.WriteLine($"Generation , best determinant = {list.OrderByDescending(u => u.determinant).FirstOrDefault().determinant}");
+            Console.WriteLine("____________________________");
+            return bestIndivids[bestIndivids.Count - 1];
         }
+
+        /// <summary>
+        /// Метод генерации первого поколения особей(индивидов)
+        /// </summary>
+        /// <returns></returns>
+            public List<Individual> GenerateFirstGeneration()
+            {
+                var vectors = MatrixRandom(elementInVector, vectorsAmount);
+                var individualsList = new List<Individual>();
+                for (int i = 0; i < individualCount; i++)
+                {
+                    var squareMatrix = GetSquareMatrix(vectors, elementInVector, vectorsAmount);
+                    var det = GetDeterminant(squareMatrix);
+                    individualsList.Add(new Individual { matrix =  squareMatrix, determinant = det });
+                }
+                return individualsList;
+            }
 
         /// <summary>
         /// Метод селекции. Реализует два вида селекции: рулетка и турнир
         /// </summary>
-        /// <param name="bestFromTourney">should be % 2 == 0</param>
+        /// <param name="bestFromSelection">should be % 2 == 0</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public List<Individual> SelectionProcess(int bestFromTourney)
+        public List<Individual> SelectionProcess(List<Individual> firstGeneration, int bestFromSelection)
         {
-            var firstGeneration = GenerateFirstGeneration();
             List<Individual> bestIndividuals = new List<Individual>();
             switch (selectionType)
             {
                 case Roulette_Wheel:
-                {
-                    double[] wheel = new double[individualCount];
-                    wheel[0] = FitnessFunction.GetFitness();
-                    for (int i = 1; i < individualCount; i++)
                     {
-                       wheel[i] = wheel[i - 1] + FitnessFunction.GetFitness();
+                        var random = new Random();
+                        var distributionValues = new double[firstGeneration.Count];
+                        for (int individIndex = 0; individIndex < firstGeneration.Count; individIndex++)
+                        {
+                            distributionValues[individIndex] = firstGeneration[individIndex].determinant;
+                        }
+                        var vers = Perc(distributionValues);
+                        var usedIndexes = new int[bestFromSelection];
+                        for (int i = 0; i < bestFromSelection; i++)
+                        {
+                            random = new Random();
+                            var index = GetRNDIndex(random, vers);
+                            vers = vers.Where((val, idx) => idx != index).ToArray();
+                            usedIndexes[i] = index;
+                            bestIndividuals.Add(firstGeneration[index]);
+                        }
+                        return bestIndividuals;
                     }
-                    return bestIndividuals;
-                    break;
-                }
                 case Tourney:
                 {
                         List<Individual> firstTourney = new List<Individual>();
@@ -101,7 +143,7 @@ namespace GeneticAlgorithmDiplom
                         {
                             if (counter % 2 == 0)
                             {
-                                if (double.IsNaN(individual.determinant) == true) { }
+                                if (double.IsNaN(individual.determinant) || double.IsInfinity(individual.determinant)) { }
                                 else
                                 {
                                     firstTourney.Add(individual);
@@ -110,7 +152,7 @@ namespace GeneticAlgorithmDiplom
                             }
                             else
                             {
-                                if (double.IsNaN(individual.determinant) == true) { }
+                                if (double.IsNaN(individual.determinant) == true || double.IsInfinity(individual.determinant)) { }
                                 else
                                 {
                                     secondTourney.Add(individual);
@@ -122,13 +164,13 @@ namespace GeneticAlgorithmDiplom
                         firstTourney = Individual.MergeSort(firstTourney);
                         secondTourney = Individual.MergeSort(secondTourney);
 
-                        if (firstTourney.Count <= bestFromTourney / 2|| secondTourney.Count <= bestFromTourney / 2) throw new Exception("not enough individeals");
-                        for (int i = firstTourney.Count - 1; i >= firstTourney.Count  - bestFromTourney / 2; --i)
+                        if (firstTourney.Count + secondTourney.Count <= (bestFromSelection / 2) ) throw new Exception("not enough individeals");
+                        for (int i = firstTourney.Count - 1; i >= firstTourney.Count  - bestFromSelection / 2; --i)
                         {
                             bestIndividuals.Add(firstTourney[i]);
                         }
 
-                        for (int i = secondTourney.Count - 1; i >= secondTourney.Count - bestFromTourney / 2; --i)
+                        for (int i = secondTourney.Count - 1; i >= secondTourney.Count - bestFromSelection / 2; --i)
                         {
                             bestIndividuals.Add(secondTourney[i]);
                         }
@@ -345,6 +387,30 @@ namespace GeneticAlgorithmDiplom
             }
             return mutated;
         }
+
+        #region [ methods for selection tourney ]
+        private double[] Perc(double[] vers)
+        {
+            double sum = vers.Sum();
+            vers[0] /= sum;
+            for (int i = 1; i < vers.Length; i++)
+            {
+                vers[i] = vers[i] / sum + vers[i - 1];
+            }
+            vers[vers.Length - 1] = 1.0;
+            return vers;
+        }
+
+        private int GetRNDIndex(Random rnd, double[] vers)
+        {
+            double rndval = rnd.NextDouble();
+            for (int i = 0; i < vers.Length; i++)
+                if (vers[i] > rndval)
+                    return i;
+            return 1;
+        }
+
+        #endregion
 
         #region [ methods for shuffler mutation ]
         private double GaussForShufflerMutation(double[] chromosome)

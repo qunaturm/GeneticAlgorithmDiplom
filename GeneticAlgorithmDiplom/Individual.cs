@@ -1,6 +1,6 @@
 ﻿namespace GeneticAlgorithmDiplom
 {
-    public class Individual
+    public sealed class Individual
     {
         public double[][] matrix { get; set; }
         public double determinant { get; set; }

@@ -222,6 +222,52 @@ namespace GeneticAlgorithmTest
         }
 
         [Fact]
+        public void SelectionTourneyElitism()
+        {
+            var fitnessFunction = new FitnessFunction();
+            var ga = new GeneticEngine(
+                         fitnessFunction,
+                         100,
+                         16,
+                         SelectionType.Tourney  ,            
+                         CrossingType.Shuffler_Crossover,
+                         MutationType.ApproximateMutation,
+                         true,
+                         0.2,
+                         true,
+                         90,
+                         7);
+            var firstGeneration = ga.GenerateFirstGeneration();
+            var bestParents = ga.SelectionProcess(firstGeneration, 8);
+            var children = ga.CrossingProcess(bestParents);
+            var mutated = ga.MutationProces(children);
+            mutated.Count.Should().Be(8);
+        }
+
+        [Fact]
+        public void SelectionRouletteWheelElitism()
+        {
+            var fitnessFunction = new FitnessFunction();
+            var ga = new GeneticEngine(
+                         fitnessFunction,
+                         100,
+                         16,
+                         SelectionType.Roulette_Wheel,
+                         CrossingType.Shuffler_Crossover,
+                         MutationType.ApproximateMutation,
+                         true,
+                         0.2,
+                         true,
+                         90,
+                         7);
+            var firstGeneration = ga.GenerateFirstGeneration();
+            var bestParents = ga.SelectionProcess(firstGeneration, 8);
+            var children = ga.CrossingProcess(bestParents);
+            var mutated = ga.MutationProces(children);
+            mutated.Count.Should().Be(8);
+        }
+
+        [Fact]
         public void Run()
         {
             var fitnessFunction = new FitnessFunction();

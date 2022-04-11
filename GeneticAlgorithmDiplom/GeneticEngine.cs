@@ -115,31 +115,51 @@ namespace GeneticAlgorithmDiplom
             switch (selectionType)
             {
                 case Roulette_Wheel:
+                {
+                    if (enableElitism == true)
                     {
-                        var random = new Random();
-                        var distributionValues = new double[firstGeneration.Count];
-                        for (int individIndex = 0; individIndex < firstGeneration.Count; individIndex++)
-                        {
-                            distributionValues[individIndex] = firstGeneration[individIndex].determinant;
-                        }
-                        var vers = Perc(distributionValues);
-                        var usedIndexes = new int[bestFromSelection];
-                        for (int i = 0; i < bestFromSelection; i++)
-                        {
-                            random = new Random();
-                            var index = GetRNDIndex(random, vers);
-                            vers = vers.Where((val, idx) => idx != index).ToArray();
-                            usedIndexes[i] = index;
-                            bestIndividuals.Add(firstGeneration[index]);
-                        }
-                        return bestIndividuals;
+                        var parents = Individual.MergeSort(firstGeneration);
+                        bestIndividuals.Add(parents[parents.Count - 1]);
+                        bestIndividuals.Add(parents[parents.Count - 2]);
                     }
+                    var random = new Random();
+                    var distributionValues = new double[firstGeneration.Count];
+                    for (int individIndex = 0; individIndex < firstGeneration.Count; individIndex++)
+                    {
+                        distributionValues[individIndex] = firstGeneration[individIndex].determinant;
+                    }
+                    var vers = Perc(distributionValues);
+                    var usedIndexes = new int[bestFromSelection];
+                    for (int i = 0; i < bestFromSelection; i++)
+                    {
+                        random = new Random();
+                        var index = GetRNDIndex(random, vers);
+                        vers = vers.Where((val, idx) => idx != index).ToArray();
+                        usedIndexes[i] = index;
+                        bestIndividuals.Add(firstGeneration[index]);
+                    }
+                    // case if elitism enable
+                    if (bestIndividuals.Count != bestFromSelection)
+                    {
+                        bestIndividuals = Individual.MergeSort(bestIndividuals);
+                        bestIndividuals.RemoveRange(0, 2);
+                    }
+                    return bestIndividuals;
+                }
                 case Tourney:
                 {
-                        List<Individual> firstTourney = new List<Individual>();
-                        List<Individual> secondTourney = new List<Individual>();
-                        int counter = 1;
-                        foreach (Individual individual in firstGeneration)
+                    if (enableElitism == true)
+                    {
+                        var parents = Individual.MergeSort(firstGeneration);
+                        bestIndividuals.Add(parents[parents.Count - 1]);
+                        bestIndividuals.Add(parents[parents.Count - 2]);
+                    }
+                    List<Individual> firstTourney = new List<Individual>();
+                    List<Individual> secondTourney = new List<Individual>();
+                    int counter = 1;
+                    foreach (Individual individual in firstGeneration)
+                    {
+                        if (counter < bestFromSelection + 1)
                         {
                             if (counter % 2 == 0)
                             {
@@ -159,22 +179,31 @@ namespace GeneticAlgorithmDiplom
                                     counter++;
                                 }
                             }
-                        }
-                        // sort from min det to max
-                        firstTourney = Individual.MergeSort(firstTourney);
-                        secondTourney = Individual.MergeSort(secondTourney);
 
-                        if (firstTourney.Count + secondTourney.Count <= (bestFromSelection / 2) ) throw new Exception("not enough individeals");
-                        for (int i = firstTourney.Count - 1; i >= firstTourney.Count  - bestFromSelection / 2; --i)
-                        {
-                            bestIndividuals.Add(firstTourney[i]);
                         }
+                    }
+                    // sort from min det to max
+                    firstTourney = Individual.MergeSort(firstTourney);
+                    secondTourney = Individual.MergeSort(secondTourney);
 
-                        for (int i = secondTourney.Count - 1; i >= secondTourney.Count - bestFromSelection / 2; --i)
-                        {
-                            bestIndividuals.Add(secondTourney[i]);
-                        }
-                        return bestIndividuals;
+                    if (firstTourney.Count + secondTourney.Count <= (bestFromSelection / 2) ) throw new Exception("not enough individeals");
+                    for (int i = firstTourney.Count - 1; i >= firstTourney.Count  - bestFromSelection / 2; --i)
+                    {
+                        bestIndividuals.Add(firstTourney[i]);
+                    }
+
+                    for (int i = secondTourney.Count - 1; i >= secondTourney.Count - bestFromSelection / 2; --i)
+                    {
+                        bestIndividuals.Add(secondTourney[i]);
+                    }
+
+                    // case if elitism enable
+                    if (bestIndividuals.Count != bestFromSelection)
+                    {
+                        bestIndividuals = Individual.MergeSort(bestIndividuals);
+                        bestIndividuals.RemoveRange(0, 2);
+                    }
+                    return bestIndividuals;
                 }
             }
             throw new Exception("cannot make selection process");

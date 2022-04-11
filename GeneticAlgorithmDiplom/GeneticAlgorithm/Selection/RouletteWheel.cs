@@ -17,15 +17,18 @@
             {
                 distributionValues[individIndex] = firstGeneration[individIndex].determinant;
             }
-            var vers = Perc(distributionValues);
-            var usedIndexes = new int[bestFromSelection];
+            var vers = new double[firstGeneration.Count];
+            var index = 0;
             for (int i = 0; i < bestFromSelection; i++)
             {
+                vers = Perc(distributionValues);
                 random = new Random();
-                var index = GetRNDIndex(random, vers);
-                vers = vers.Where((val, idx) => idx != index).ToArray();
-                usedIndexes[i] = index;
+                index = GetRNDIndex(random, vers);
                 bestIndividuals.Add(firstGeneration[index]);
+
+                // remove used individual frome sample
+                firstGeneration.RemoveAt(index);
+                distributionValues = distributionValues.Where((val, idx) => idx != index).ToArray();
             }
             // case if elitism enable
             if (bestIndividuals.Count != bestFromSelection)

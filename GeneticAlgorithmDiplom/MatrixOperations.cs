@@ -107,6 +107,72 @@
             }
         }
 
+        public static double[][] CopyColumn(double[][] sourceLeft, double[][] sourceRight, int index)
+        {
+            var result = new double[sourceLeft.Length][];
+            for (int i = 0; i < sourceLeft.Length; ++i)
+            {
+                result[i] = new double[sourceLeft.Length];
+                for (int j = 0; j < index; ++j)
+                {
+                    result[i][j] = sourceLeft[i][j];
+                }
+            }
+
+            for (int i = 0; i < sourceLeft.Length; ++i)
+            {
+                for (var j = index; j < sourceLeft.Length; ++j)
+                {
+                    result[i][j] = sourceRight[i][j];
+                }
+            }
+            return result;
+        }
+
+        public static List<Individual> CopyColumn(double[][] sourceLeft, double[][] sourceRight, int firstIndex, int secondIndex)
+        {
+            var result1 = new double[sourceLeft.Length][];
+            var result2 = new double[sourceLeft.Length][];
+
+            for (int i = 0; i < sourceLeft.Length; ++i)
+            {
+                result1[i] = new double[sourceLeft.Length];
+                result2[i] = new double[sourceLeft.Length];
+                for (int j = 0; j < firstIndex; ++j)
+                {
+                    result1[i][j] = sourceLeft[i][j];
+                    result2[i][j] = sourceRight[i][j];
+                }
+            }
+
+            for (int i = 0; i < sourceLeft.Length; ++i)
+            {
+                for (var j = firstIndex; j < secondIndex; ++j)
+                {
+                    result1[i][j] = sourceRight[i][j];
+                    result2[i][j] = sourceLeft[i][j];
+                }
+            }
+
+            for (int i = 0; i < sourceLeft.Length; ++i)
+            {
+                for (var j = secondIndex; j < sourceLeft.Length; ++j)
+                {
+                    result1[i][j] = sourceLeft[i][j];
+                    result2[i][j] = sourceRight[i][j];
+                }
+            }
+            var child1 = new Individual { matrix = result1 };
+            child1.determinant = GetDeterminant(child1.matrix);
+            var child2 = new Individual { matrix = result2 };
+            child2.determinant = GetDeterminant(child2.matrix);
+
+            var list = new List<Individual>();
+            list.Add(child1);
+            list.Add(child2);
+            return list;
+        }
+
         public static double[][] GetSquareMatrix(double[][] vectors, int vectorRow, int vectorCol)
         {
             var squareMetrixSize = vectorCol;

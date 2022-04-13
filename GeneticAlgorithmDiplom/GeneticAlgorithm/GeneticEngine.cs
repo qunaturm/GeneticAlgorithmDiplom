@@ -18,7 +18,7 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         public int vectorsAmount { get; set; }
 
         /// <summary>
-        /// Инициализация движка ГА с пользовательскими параметрами
+        /// Инициализация движка ГА
         /// </summary>
         /// <param name="fitnessFunction">Fitness function</param>
         /// <param name="generationCount">Количество поколений</param>

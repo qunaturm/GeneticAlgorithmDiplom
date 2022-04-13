@@ -15,7 +15,7 @@
         public static double[][] MatrixRandom(int rows, int cols)
         {
             var minVal = 1;
-            var maxVal = 101;  // not included
+            var maxVal = 10;  // not included
             Random random = new Random();
             double[][] result = CreateMatrix(rows, cols);
             for (int i = 0; i < rows; ++i)

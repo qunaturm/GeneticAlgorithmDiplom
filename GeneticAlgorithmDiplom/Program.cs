@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using GeneticAlgorithmDiplom.Genitor;
+using System.Diagnostics;
 
 namespace GeneticAlgorithmDiplom
 {
@@ -6,30 +7,52 @@ namespace GeneticAlgorithmDiplom
     {
         public static void Main(string[] args)
         {
-            var fitnessFunction = new FitnessFunction();
+            Console.WriteLine("GA:");
+            var fitnessFunctionGA = new FitnessFunction();
             var ga = new GeneticAlgorithm.GeneticEngine(
-                         fitnessFunction: fitnessFunction,
+                         fitnessFunction: fitnessFunctionGA,
                          generationCount: 100,
-                         individualCount: 40,
+                         individualCount: 100,
                          selectionType: GeneticAlgorithm.Selection.Tourney.Selector,
-                         crossingType: GeneticAlgorithm.Crossing.TwoPointsCrossing.Crossover,
-                         mutationType: GeneticAlgorithm.Mutation.ClassicMutation.Mutator,
+                         crossingType: GeneticAlgorithm.Crossing.ShufflerCrossing.Crossover,
+                         mutationType: GeneticAlgorithm.Mutation.ShufflingMutation.Mutator,
                          useMutation: true,
                          mutationPercent: 0.2,
                          enableElitism: true,
                          stopAfterNGenerations: false,
                          elementInVector: 3000,
-                         vectorsAmount: 5);
+                         vectorsAmount: 10);
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             ga.RunGA();
             stopwatch.Stop();
-
             Console.WriteLine("Best Individual matrix:");
-            MatrixOperations.PrintMatrix(fitnessFunction.BestIndividual.Matrix);
+            MatrixOperations.PrintMatrix(fitnessFunctionGA.BestIndividual.Matrix);
             Console.WriteLine();
-            Console.WriteLine($"Best determinant found at {fitnessFunction.BestGenerationNumber} generation. It is: {fitnessFunction.BestIndividual.Determinant}");
+            Console.WriteLine($"Best determinant found at {fitnessFunctionGA.BestGenerationNumber} generation. It is: {fitnessFunctionGA.BestIndividual.Determinant}");
             Console.WriteLine($"Time = {stopwatch.Elapsed}");
+
+/*
+            var fitnessFunctionGenitor = new FitnessFunction();
+            Console.WriteLine("Genitor:");
+            var genitor = new GenitorEngine(
+                         fitnessFunction: fitnessFunctionGenitor,
+                         generationCount: 100,
+                         individualCount: 100,
+                         selectionType: Genitor.Selection.RouletteWheel.Selector,
+                         crossingType: Genitor.Crossing.Two_Point_Crossover.Crossover,
+                         mutationType: Genitor.Mutation.ExchangeMutation.Mutator,
+                         useMutation: true,
+                         mutationPercent: 0.2,
+                         stopAfterNGenerations: false,
+                         elementInVector: 3000,
+                         vectorsAmount: 10);
+            genitor.RunGenitor();
+            Console.WriteLine("Best Individual matrix:");
+            MatrixOperations.PrintMatrix(fitnessFunctionGenitor.BestIndividual.Matrix);
+            Console.WriteLine();
+            Console.WriteLine($"Best determinant found at {fitnessFunctionGenitor.BestGenerationNumber} generation. It is: {fitnessFunctionGenitor.BestIndividual.Determinant}");
+*/
         }
     }
 }

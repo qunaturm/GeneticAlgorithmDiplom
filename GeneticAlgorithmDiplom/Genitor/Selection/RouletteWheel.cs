@@ -9,15 +9,19 @@
             var distributionValues = new double[generation.Count];
             for (int individIndex = 0; individIndex < generation.Count; individIndex++)
             {
-                distributionValues[individIndex] = generation[individIndex].determinant;
+                distributionValues[individIndex] = generation[individIndex].Determinant;
             }
             var vers = Perc(distributionValues);
 
             var random = new Random();
             var firstParentIndex = GetRNDIndex(random, vers);
             var secondParentIndex = GetRNDIndex(random, vers);
-            parents.Add(new Individual { matrix = generation[firstParentIndex].matrix, determinant = generation[firstParentIndex].determinant });
-            parents.Add(new Individual { matrix = generation[secondParentIndex].matrix, determinant = generation[secondParentIndex].determinant });
+            while (firstParentIndex == secondParentIndex)
+            {
+                secondParentIndex = GetRNDIndex(random, vers);
+            }
+            parents.Add(new Individual { Matrix = generation[firstParentIndex].Matrix, Determinant = generation[firstParentIndex].Determinant });
+            parents.Add(new Individual { Matrix = generation[secondParentIndex].Matrix, Determinant = generation[secondParentIndex].Determinant });
             return parents;
         };
         private static double[] Perc(double[] vers)

@@ -35,7 +35,6 @@
         private static double GaussForShufflerMutation(double[] chromosome, double stddev)
         {
             var random = new Random();
-            var mutationRate = 2;
             double mean = 0;
             for (int i = 0; i < chromosome.Length; i++)
             {

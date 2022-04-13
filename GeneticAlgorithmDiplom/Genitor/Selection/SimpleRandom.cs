@@ -14,8 +14,8 @@
             {
                 secondParentIndex = random.Next(0, generation.Count - 1);
             }
-            parents.Add(new Individual { matrix = generation[firstParentIndex].matrix, determinant = generation[firstParentIndex].determinant });
-            parents.Add(new Individual { matrix = generation[secondParentIndex].matrix, determinant = generation[secondParentIndex].determinant });
+            parents.Add(new Individual { Matrix = generation[firstParentIndex].Matrix, Determinant = generation[firstParentIndex].Determinant });
+            parents.Add(new Individual { Matrix = generation[secondParentIndex].Matrix, Determinant = generation[secondParentIndex].Determinant });
             return parents;
         };
     }

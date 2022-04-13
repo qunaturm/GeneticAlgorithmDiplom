@@ -1,4 +1,6 @@
-﻿namespace GeneticAlgorithmDiplom
+﻿using System.Diagnostics;
+
+namespace GeneticAlgorithmDiplom
 {
     public static class Diplom
     {
@@ -6,22 +8,28 @@
         {
             var fitnessFunction = new FitnessFunction();
             var ga = new GeneticAlgorithm.GeneticEngine(
-                         fitnessFunction,
-                         100,
-                         16,
-                         GeneticAlgorithm.Selection.RouletteWheel.Selector,
-                         GeneticAlgorithm.Crossing.TwoPointsCrossing.Crossover,
-                         GeneticAlgorithm.Mutation.ExchangeMutation.Mutator,
-                         true,
-                         0.2,
-                         true,
-                         true,
-                         200,
-                         15);
-            var bestIndivid = ga.RunGA();
-            MatrixOperations.PrintMatrix(bestIndivid.matrix);
+                         fitnessFunction: fitnessFunction,
+                         generationCount: 100,
+                         individualCount: 40,
+                         selectionType: GeneticAlgorithm.Selection.Tourney.Selector,
+                         crossingType: GeneticAlgorithm.Crossing.TwoPointsCrossing.Crossover,
+                         mutationType: GeneticAlgorithm.Mutation.ClassicMutation.Mutator,
+                         useMutation: true,
+                         mutationPercent: 0.2,
+                         enableElitism: true,
+                         stopAfterNGenerations: false,
+                         elementInVector: 3000,
+                         vectorsAmount: 5);
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            ga.RunGA();
+            stopwatch.Stop();
+
+            Console.WriteLine("Best Individual matrix:");
+            MatrixOperations.PrintMatrix(fitnessFunction.BestIndividual.Matrix);
             Console.WriteLine();
-            Console.WriteLine($"Best determinant = {bestIndivid.determinant}");
+            Console.WriteLine($"Best determinant found at {fitnessFunction.BestGenerationNumber} generation. It is: {fitnessFunction.BestIndividual.Determinant}");
+            Console.WriteLine($"Time = {stopwatch.Elapsed}");
         }
     }
 }

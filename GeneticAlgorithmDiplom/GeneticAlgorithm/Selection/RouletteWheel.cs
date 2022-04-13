@@ -15,7 +15,7 @@
             var distributionValues = new double[firstGeneration.Count];
             for (int individIndex = 0; individIndex < firstGeneration.Count; individIndex++)
             {
-                distributionValues[individIndex] = firstGeneration[individIndex].determinant;
+                distributionValues[individIndex] = firstGeneration[individIndex].Determinant;
             }
             var vers = new double[firstGeneration.Count];
             var index = 0;

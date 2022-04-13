@@ -3,7 +3,7 @@
     public static class ApproximateMutation
     {
         private static double stddev = 0.5; // Среднее отклонение для распределения Гаусса
-        public static Func<List<Individual>, double, List<Individual>> Mutator = (individuals, mutationPercent) =>
+        public static Func<List<Individual>, List<Individual>, double, List<Individual>> Mutator = (individuals, list,  mutationPercent) =>
         {
             var mutated = new List<Individual>();
             var random = new Random();
@@ -11,20 +11,21 @@
             foreach (var individ in individuals)
             {
                 var willMutate = random.NextDouble();
-                if (willMutate > mutationPercent)
+                if (willMutate <= mutationPercent)
                 {
                     // get chromosome to exchange
-                    var chromosomeToExchange = random.Next(0, individ.matrix.Length - 1);
+                    var chromosomeToExchange = random.Next(0, individ.Matrix.Length - 1);
 
                     // exchange chromosomes
                     double newValue = 0.0;
-                    var individMatrix = individ.matrix;
+                    var individMatrix = individ.Matrix;
                     for (int i = 0; i < individMatrix.Length; i++)
                     {
-                        newValue = GaussForShufflerMutation(individ.matrix[chromosomeToExchange], stddev);
+                        newValue = GaussForShufflerMutation(individ.Matrix[chromosomeToExchange], stddev);
                         individMatrix[i][chromosomeToExchange] = newValue;
                     }
-                    individ.matrix = individMatrix;
+                    individ.Matrix = individMatrix;
+                    individ.Determinant = MatrixOperations.GetDeterminant(individ.Matrix);
                     mutationCounter++;
                 }
                 mutated.Add(individ);

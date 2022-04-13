@@ -14,8 +14,8 @@
         #region [chore]
         public static double[][] MatrixRandom(int rows, int cols)
         {
-            var minVal = 0;
-            var maxVal = 2;  // not included
+            var minVal = 1;
+            var maxVal = 101;  // not included
             Random random = new Random();
             double[][] result = CreateMatrix(rows, cols);
             for (int i = 0; i < rows; ++i)
@@ -41,7 +41,7 @@
             {
                 for (int column = 0; column < matrix.Length; ++column)
                 {
-                    Console.Write($"{matrix[row][column]}  ");
+                    Console.Write($"{matrix[row][column]}\t");
                 }
                 Console.WriteLine();
             }
@@ -62,7 +62,7 @@
             return row;
         }
 
-        public double[] GetCol(double[][] m, int index)
+        public static double[] GetCol(double[][] m, int index)
         {
             double[] col = new double[m.Length];
             for (int i = 0; i < m.Length; ++i)
@@ -87,6 +87,12 @@
             m2[index] = tmp;
         }
 
+        /// <summary>
+        /// Поменять местами столбцы с индексом index в двух матрицах
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="index"></param>
         public static void SwapColls(ref double[][] m1, ref double[][] m2, int index)
         {
             for (int i = 0; i < m2.Length; ++i)
@@ -97,6 +103,12 @@
             }
         }
 
+        /// <summary>
+        /// Поменять местами стоблцы с указанными индексами
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="firstIndex"></param>
+        /// <param name="secondIndex"></param>
         public static void SwapColls(ref double[][] m, int firstIndex, int secondIndex)
         {
             for (int i = 0; i < m.Length; ++i)
@@ -107,6 +119,29 @@
             }
         }
 
+        /// <summary>
+        /// Поменять в матрице столбец с индексом index на столбец coll
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="index"></param>
+        /// <param name="coll"></param>
+        public static void SwapColls(ref double[][] m, int index, double[] coll)
+        {
+            for (int i = 0; i < m.Length; ++i)
+            {
+                m[i][index] = coll[i];
+            }
+        }
+
+        /// <summary>
+        /// Скопировать в результирующую матрицу столбцы из первой матрицы
+        /// с индексами [0, index) и столбцы из второй матрицы с индекса
+        /// index до конца
+        /// </summary>
+        /// <param name="sourceLeft"></param>
+        /// <param name="sourceRight"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public static double[][] CopyColumn(double[][] sourceLeft, double[][] sourceRight, int index)
         {
             var result = new double[sourceLeft.Length][];
@@ -129,6 +164,15 @@
             return result;
         }
 
+        /// <summary>
+        /// Скопировать в первого потомка столбцы из первой матрицы с индексами [0, firstIndex), [secondIndex, (end))
+        /// и из второй матрицы с индексами [firstIndex, secondIndex). Во второго потока - наоборот
+        /// </summary>
+        /// <param name="sourceLeft"></param>
+        /// <param name="sourceRight"></param>
+        /// <param name="firstIndex"></param>
+        /// <param name="secondIndex"></param>
+        /// <returns></returns>
         public static List<Individual> CopyColumn(double[][] sourceLeft, double[][] sourceRight, int firstIndex, int secondIndex)
         {
             var result1 = new double[sourceLeft.Length][];
@@ -162,10 +206,10 @@
                     result2[i][j] = sourceRight[i][j];
                 }
             }
-            var child1 = new Individual { matrix = result1 };
-            child1.determinant = GetDeterminant(child1.matrix);
-            var child2 = new Individual { matrix = result2 };
-            child2.determinant = GetDeterminant(child2.matrix);
+            var child1 = new Individual { Matrix = result1 };
+            child1.Determinant = GetDeterminant(child1.Matrix);
+            var child2 = new Individual { Matrix = result2 };
+            child2.Determinant = GetDeterminant(child2.Matrix);
 
             var list = new List<Individual>();
             list.Add(child1);

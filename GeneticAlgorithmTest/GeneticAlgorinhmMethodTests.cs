@@ -11,11 +11,11 @@ namespace GeneticAlgorithmTest
         [Fact]
         public void MergeSort()
         {
-            var individ1 = new Individual { determinant = 3 };
-            var individ2 = new Individual { determinant = -1 };
-            var individ3 = new Individual { determinant = 2};
-            var individ4 = new Individual { determinant = 6 };
-            var individ5 = new Individual { determinant = -8 };
+            var individ1 = new Individual { Determinant = 3 };
+            var individ2 = new Individual { Determinant = -1 };
+            var individ3 = new Individual { Determinant = 2};
+            var individ4 = new Individual { Determinant = 6 };
+            var individ5 = new Individual { Determinant = -8 };
 
             var list = new List<Individual>(); 
             list.Add(individ1);
@@ -26,11 +26,11 @@ namespace GeneticAlgorithmTest
 
 
             var sortedList = Individual.MergeSort(list);
-            sortedList[4].determinant.Should().Be(6);
-            sortedList[3].determinant.Should().Be(3);
-            sortedList[2].determinant.Should().Be(2);
-            sortedList[1].determinant.Should().Be(-1);
-            sortedList[0].determinant.Should().Be(-8);
+            sortedList[4].Determinant.Should().Be(6);
+            sortedList[3].Determinant.Should().Be(3);
+            sortedList[2].Determinant.Should().Be(2);
+            sortedList[1].Determinant.Should().Be(-1);
+            sortedList[0].Determinant.Should().Be(-8);
         }
 
         [Fact]

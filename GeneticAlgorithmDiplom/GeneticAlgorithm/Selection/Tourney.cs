@@ -20,7 +20,7 @@
                 {
                     if (counter % 2 == 0)
                     {
-                        if (double.IsNaN(individual.determinant) || double.IsInfinity(individual.determinant)) { }
+                        if (double.IsNaN(individual.Determinant) || double.IsInfinity(individual.Determinant)) { }
                         else
                         {
                             firstTourney.Add(individual);
@@ -29,7 +29,7 @@
                     }
                     else
                     {
-                        if (double.IsNaN(individual.determinant) == true || double.IsInfinity(individual.determinant)) { }
+                        if (double.IsNaN(individual.Determinant) == true || double.IsInfinity(individual.Determinant)) { }
                         else
                         {
                             secondTourney.Add(individual);

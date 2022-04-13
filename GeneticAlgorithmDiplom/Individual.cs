@@ -2,8 +2,8 @@
 {
     public sealed class Individual
     {
-        public double[][] matrix { get; set; }
-        public double determinant { get; set; }
+        public double[][] Matrix { get; set; } = null!;
+        public double Determinant { get; set; }
         public static List<Individual> MergeSort(List<Individual> list)
         {
             if (list.Count == 1) return list;
@@ -31,7 +31,7 @@
             {
                 if (l < left.Count && r < right.Count)
                 {
-                    result.Add(left[l].determinant > right[r].determinant ? right[r++] : left[l++]);
+                    result.Add(left[l].Determinant > right[r].Determinant ? right[r++] : left[l++]);
                 }
                 else
                 {

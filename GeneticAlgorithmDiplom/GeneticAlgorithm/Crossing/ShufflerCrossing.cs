@@ -20,9 +20,9 @@
                 // get parents
                 var firstParent = parents[firstParentIndex];
                 var secondParent = parents[secondParentIndex];
-                var half = random.Next(1, parents[firstParentIndex].matrix.Length - 1);
-                var firstParentMatrix = firstParent.matrix;
-                var secondParentMatrix = secondParent.matrix;
+                var half = random.Next(1, parents[firstParentIndex].Matrix.Length - 1);
+                var firstParentMatrix = firstParent.Matrix;
+                var secondParentMatrix = secondParent.Matrix;
 
                 // remove parents from initial sample
                 parents.Remove(firstParent);
@@ -33,12 +33,12 @@
                 // get first child data
                 var child1Matrix = MatrixOperations.CopyColumn(firstParentMatrix, secondParentMatrix, random.Next(0, firstParentMatrix.Length - 1));
                 var child1Det = MatrixOperations.GetDeterminant(child1Matrix);
-                children.Add(new Individual { matrix = child1Matrix, determinant = child1Det });
+                children.Add(new Individual { Matrix = child1Matrix, Determinant = child1Det });
 
                 // get second child data
                 var child2Matrix = MatrixOperations.CopyColumn(firstParentMatrix, secondParentMatrix, random.Next(0, firstParentMatrix.Length - 1));
                 var child2Det = MatrixOperations.GetDeterminant(child2Matrix);
-                children.Add(new Individual { matrix = child2Matrix, determinant = child2Det });
+                children.Add(new Individual { Matrix = child2Matrix, Determinant = child2Det });
             }
             return children;
         };

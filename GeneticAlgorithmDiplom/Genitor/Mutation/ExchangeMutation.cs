@@ -1,36 +1,31 @@
-﻿namespace GeneticAlgorithmDiplom.Genitor.Mutation
+﻿ namespace GeneticAlgorithmDiplom.Genitor.Mutation
 {
     public static class ExchangeMutation
     {
-        public static Func<List<Individual>, double, List<Individual>> Mutator = (individuals, mutationPercent) =>
+        public static Func<Individual, double, Individual> Mutator = (individual, mutationPercent) =>
         {
-            var mutated = new List<Individual>();
             var random = new Random();
-            var mutationCounter = 0;
-            foreach (var individ in individuals)
+
+            var willMutate = random.NextDouble();
+            if (willMutate > mutationPercent)
             {
-                var willMutate = random.NextDouble();
-                if (willMutate > mutationPercent)
+                // get indexex of chromosome to exchange
+                var firstChromosomeIndex = random.Next(0, individual.Matrix.Length - 1);
+                var secondChromosomeIndex = random.Next(0, individual.Matrix.Length - 1);
+
+                // eliminate repeat
+                while (secondChromosomeIndex == firstChromosomeIndex)
                 {
-                    // get indexex of chromosome to exchange
-                    var firstChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
-                    var secondChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
-
-                    // eliminate repeat
-                    while (secondChromosomeIndex == firstChromosomeIndex)
-                    {
-                        secondChromosomeIndex = random.Next(0, individ.matrix.Length - 1);
-                    }
-
-                    //exchange chromosomes
-                    var individMatrix = individ.matrix;
-                    MatrixOperations.SwapColls(ref individMatrix, firstChromosomeIndex, secondChromosomeIndex);
-                    individ.matrix = individMatrix;
-                    mutationCounter++;
+                    secondChromosomeIndex = random.Next(0, individual.Matrix.Length - 1);
                 }
-                mutated.Add(individ);
+
+                //exchange chromosomes
+                var individMatrix = individual.Matrix;
+                MatrixOperations.SwapColls(ref individMatrix, firstChromosomeIndex, secondChromosomeIndex);
+                individual.Matrix = individMatrix;
+                individual.Determinant = MatrixOperations.GetDeterminant(individual.Matrix);
             }
-            return mutated;
+            return individual;
         };
     }
 }

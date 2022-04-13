@@ -9,7 +9,7 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         public int individualCount { get; set; } // Кол-во индивидов в поколении
         public Func<List<Individual>, int, bool, List<Individual>> selectionType { get; set; } // Тип селекции
         public Func<List<Individual>, List<Individual>> crossingType { get; set; } // Тип скрещивания
-        public Func<List<Individual>, double, List<Individual>> mutationType { get; set; } // Тип мутации
+        public Func<List<Individual>, List<Individual>?, double, List<Individual>> mutationType { get; set; } // Тип мутации
         public bool useMutation { get; set; } // Использовать мутацию
         public double mutationPercent { get; set; } // Как часто происходит мутация
         public bool enableElitism { get; set; } // Включить элитарность
@@ -29,6 +29,7 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         /// <param name="useMutation">Мутация(да/нет)</param>
         /// <param name="mutationPercent">Вероятность мутации</param>
         /// <param name="enableElitism">Включить элитарность</param>
+        /// <param name="stopAfterNGenerations">Прекратить работу в случае, если в течение длительного периода не наблюдается улучшения характеристик особей в поколении</param>
         /// <param name="elementInVector">Количество столбцов</param>
         /// <param name="vectorsAmount">Количество строк</param>
         public GeneticEngine(FitnessFunction fitnessFunction,
@@ -36,7 +37,7 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
                              int individualCount,
                              Func<List<Individual>, int, bool, List<Individual>> selectionType,
                              Func<List<Individual>, List<Individual>> crossingType,
-                             Func<List<Individual>, double, List<Individual>> mutationType,
+                             Func<List<Individual>, List<Individual>?, double, List<Individual>> mutationType,
                              bool useMutation,
                              double mutationPercent,
                              bool enableElitism,
@@ -59,46 +60,39 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         }
 
         /// <summary>
-        /// Метод запуска работы ГА
+        /// Метод запуска работы ГА. Останавливается либо по достижению предельного числа поколений,
+        /// либо по отсутствию улучшений за n-поколений
         /// </summary>
-        /// <returns></returns>
-        public Individual RunGA()
+        /// <returns>Возвращает лучшего полученного индивина</returns>
+        public void RunGA()
         {
-            var bestIndivid = new Individual { determinant = double.MinValue };
-            var currentGeneration = GenerateFirstGeneration();
-            var list = new List<Individual>();
-            var generationWithoutProgressCounter = 0;
+            var firstGeneration =  GenerateFirstGeneration();
+            var currentGeneration = firstGeneration;
             for (int i = 0; i < generationCount; ++i)
             {
                 // selection, crossing and mutation
                 currentGeneration = selectionType(currentGeneration, individualCount, enableElitism);
                 currentGeneration = crossingType(currentGeneration);
-                currentGeneration = mutationType(currentGeneration, mutationPercent);
+                if (mutationType == Mutation.ClassicMutation.Mutator)
+                    currentGeneration = mutationType(currentGeneration, firstGeneration, mutationPercent);
+                else currentGeneration = mutationType(currentGeneration, null, mutationPercent);
 
-                // sort i-generation to get best and check stopAfterNGenerations
+
+                // sort i-generation to get best
                 var sortedCurrentGeneration = Individual.MergeSort(currentGeneration);
-                if (stopAfterNGenerations == true)
-                {
-                    if (bestIndivid.determinant > sortedCurrentGeneration[sortedCurrentGeneration.Count - 1].determinant)
-                    {
-                        generationWithoutProgressCounter++;
-                    }
-                    else
-                    {
-                        generationWithoutProgressCounter = 0;
-                        bestIndivid = sortedCurrentGeneration[sortedCurrentGeneration.Count - 1];
-                    }
-                }
-                if (generationWithoutProgressCounter == 10)
+
+                fitnessFunction.Fitness(sortedCurrentGeneration[sortedCurrentGeneration.Count - 1], i);
+
+                // if stopAfterNGenerations == true
+                if (stopAfterNGenerations == true && fitnessFunction.GenerationWithoutProgressCounter == 10)
                 {
                     Console.WriteLine($"GA was stopped at {i}-generation due to the lack of improvements in the characteristics of individuals");
-                    return bestIndivid;
+                    break;
                 }
-                Console.WriteLine($"Generation {i}, best determinant = {bestIndivid.determinant}");
+                Console.WriteLine($"Generation {i}, best determinant = {sortedCurrentGeneration[sortedCurrentGeneration.Count - 1].Determinant}");
                 Console.WriteLine("____________________________");
             }
             Console.WriteLine("____________________________");
-            return bestIndivid;
         }
 
         /// <summary>
@@ -109,11 +103,11 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         {
             var vectors = MatrixRandom(elementInVector, vectorsAmount);
             var individualsList = new List<Individual>();
-            for (int i = 0; i < individualCount * 2; i++)
+            for (int i = 0; i < individualCount * 5; i++)
             {
                 var squareMatrix = GetSquareMatrix(vectors, elementInVector, vectorsAmount);
                 var det = GetDeterminant(squareMatrix);
-                individualsList.Add(new Individual { matrix = squareMatrix, determinant = det });
+                individualsList.Add(new Individual { Matrix = squareMatrix, Determinant = det });
             }
             return individualsList;
         }

@@ -4,7 +4,7 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
 {
     public sealed class GeneticEngine
     {
-        public FitnessFunction fitnessFunction { get; set; }
+        public FitnessFunction fitnessFunction { get; set; } // Фитнесс функция
         public long generationCount { get; set; } // Кол-во поколений
         public int individualCount { get; set; } // Кол-во индивидов в поколении
         public Func<List<Individual>, int, bool, List<Individual>> selectionType { get; set; } // Тип селекции

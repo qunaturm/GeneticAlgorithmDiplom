@@ -24,9 +24,6 @@
                 var firstParentMatrix = firstParent.Matrix;
                 var secondParentMatrix = secondParent.Matrix;
 
-                // remove parents from initial sample
-                parents.Remove(firstParent);
-                parents.Remove(secondParent);
                 // swap genom for both
                 MatrixOperations.SwapColls(ref firstParentMatrix, ref secondParentMatrix, half);
 

@@ -10,9 +10,7 @@
             {
                 // get two parent
                 var firstParent = parents[random.Next(0, parents.Count)];
-                parents.Remove(firstParent);
                 var secondParent = parents[random.Next(0, parents.Count)];
-                parents.Remove(secondParent);
 
                 //get index of chromosome for children
                 var firstHalf = random.Next(1, firstParent.Matrix.Length - 2);

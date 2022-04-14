@@ -66,17 +66,31 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         /// <returns>Возвращает лучшего полученного индивина</returns>
         public void RunGA()
         {
-            var firstGeneration =  GenerateFirstGeneration();
-            var currentGeneration = firstGeneration;
+            var initialSample =  GenerateFirstGeneration();
+            var currentGeneration = initialSample;
             for (int i = 0; i < generationCount; ++i)
             {
-                // selection, crossing and mutation
+                // selection and crossing
                 currentGeneration = selectionType(currentGeneration, individualCount, enableElitism);
                 currentGeneration = crossingType(currentGeneration);
-                if (mutationType == Mutation.ClassicMutation.Mutator)
-                    currentGeneration = mutationType(currentGeneration, firstGeneration, mutationPercent);
-                else currentGeneration = mutationType(currentGeneration, null, mutationPercent);
 
+                // get children that will mutate and segregate them from parents
+                var children = currentGeneration.Where((val, idx) => idx > individualCount - 1).ToList();
+                currentGeneration = currentGeneration.Where((val, idx) => idx < individualCount).ToList();
+
+                // mutation
+                List<Individual> mutatedChildren = new List<Individual>();
+                if (mutationType == Mutation.ClassicMutation.Mutator)
+                {
+                    mutatedChildren = mutationType(children, initialSample, mutationPercent);
+                }
+                else
+                {
+                    mutatedChildren = mutationType(children, null, mutationPercent);
+                }
+
+                // add mutated children to parents
+                currentGeneration.AddRange(mutatedChildren);
 
                 // sort i-generation to get best
                 var sortedCurrentGeneration = Individual.MergeSort(currentGeneration);
@@ -84,7 +98,7 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
                 fitnessFunction.Fitness(sortedCurrentGeneration[sortedCurrentGeneration.Count - 1], i);
 
                 // if stopAfterNGenerations == true
-                if (stopAfterNGenerations == true && fitnessFunction.GenerationWithoutProgressCounter == 10)
+                if (stopAfterNGenerations == true && fitnessFunction.GenerationWithoutProgressCounter == 30)
                 {
                     Console.WriteLine($"GA was stopped at {i}-generation due to the lack of improvements in the characteristics of individuals");
                     break;

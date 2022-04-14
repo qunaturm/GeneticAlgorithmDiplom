@@ -4,13 +4,15 @@
     {
         public static Func<List<Individual>, List<Individual>> Crossover = (parents) =>
         {
-            var children = new List<Individual>();
             var random = new Random();
-            while (parents.Count > 0)
+            var parentsCopy = new List<Individual>(parents);
+            while (parentsCopy.Count > 0)
             {
                 // get two parent
-                var firstParent = parents[random.Next(0, parents.Count)];
-                var secondParent = parents[random.Next(0, parents.Count)];
+                var firstParent = parentsCopy[random.Next(0, parentsCopy.Count)];
+                parentsCopy.Remove(firstParent);
+                var secondParent = parentsCopy[random.Next(0, parentsCopy.Count)];
+                parentsCopy.Remove(secondParent);
 
                 //get indexes of chromosome for children
                 var firstHalf = random.Next(1, firstParent.Matrix.Length - 2);
@@ -19,10 +21,10 @@
 
                 var listTwoChildren = MatrixOperations.CopyColumn(firstParent.Matrix, secondParent.Matrix, firstHalf, secondHalf);
 
-                children.Add(listTwoChildren[0]);
-                children.Add(listTwoChildren[1]);
+                parents.Add(listTwoChildren[0]);
+                parents.Add(listTwoChildren[1]);
             }
-            return children;
+            return parents;
         };
     }
 }

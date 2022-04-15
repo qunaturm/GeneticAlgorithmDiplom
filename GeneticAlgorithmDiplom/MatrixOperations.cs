@@ -23,6 +23,22 @@
                     result[i][j] = random.Next(minVal, maxVal);
             return result;
         }
+        public static double[][] MatrixRandomOneMinusOne(int rows, int cols)
+        {
+            Random random = new Random();
+            double[][] result = CreateMatrix(rows, cols);
+            for (int i = 0; i < rows; ++i)
+            {
+                for (int j = 0; j < cols; ++j)
+                {
+                    var check = random.NextDouble();
+                    if (check < 0.5) result[i][j] = 1;
+                    else result[i][j] = -1;
+
+                }
+            }
+            return result;
+        }
 
         public static bool MatrixAreEqual(double[][] matrixA, double[][] matrixB, double epsilon)
         {
@@ -222,11 +238,12 @@
             var squareMetrixSize = vectorCol;
             var random = new Random();
             int[] usedVectors = new int[squareMetrixSize];
-            double[][] result = CreateMatrix(squareMetrixSize, squareMetrixSize);
+            double[][] result = new double[squareMetrixSize][];
 
             // eliminate repeat
             for (int i = 0; i < squareMetrixSize; ++i)
             {
+                result[i] = new double[squareMetrixSize];
                 var nextVector = random.Next(0, vectorRow);
                 while (usedVectors.Contains(nextVector))
                 {

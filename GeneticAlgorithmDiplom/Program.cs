@@ -11,17 +11,17 @@ namespace GeneticAlgorithmDiplom
             var fitnessFunctionGA = new FitnessFunction();
             var ga = new GeneticAlgorithm.GeneticEngine(
                          fitnessFunction: fitnessFunctionGA,
-                         generationCount: 100,
+                         generationCount: 1000,
                          individualCount: 100,
-                         selectionType: GeneticAlgorithm.Selection.Tourney.Selector,
+                         selectionType: GeneticAlgorithm.Selection.RouletteWheel.Selector,
                          crossingType: GeneticAlgorithm.Crossing.ShufflerCrossing.Crossover,
-                         mutationType: GeneticAlgorithm.Mutation.ShufflingMutation.Mutator,
+                         mutationType: GeneticAlgorithm.Mutation.ClassicMutation.Mutator,
                          useMutation: true,
                          mutationPercent: 0.2,
-                         enableElitism: true,
+                         enableElitism: false,
                          stopAfterNGenerations: false,
-                         elementInVector: 3000,
-                         vectorsAmount: 10);
+                         vectorsAmount: 3000,
+                         elementInVector: 10);
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             ga.RunGA();
@@ -32,12 +32,12 @@ namespace GeneticAlgorithmDiplom
             Console.WriteLine($"Best determinant found at {fitnessFunctionGA.BestGenerationNumber} generation. It is: {fitnessFunctionGA.BestIndividual.Determinant}");
             Console.WriteLine($"Time = {stopwatch.Elapsed}");
 
-/*
-            var fitnessFunctionGenitor = new FitnessFunction();
+
+/*            var fitnessFunctionGenitor = new FitnessFunction();
             Console.WriteLine("Genitor:");
             var genitor = new GenitorEngine(
                          fitnessFunction: fitnessFunctionGenitor,
-                         generationCount: 100,
+                         generationCount: 1000,
                          individualCount: 100,
                          selectionType: Genitor.Selection.RouletteWheel.Selector,
                          crossingType: Genitor.Crossing.Two_Point_Crossover.Crossover,
@@ -46,13 +46,13 @@ namespace GeneticAlgorithmDiplom
                          mutationPercent: 0.2,
                          stopAfterNGenerations: false,
                          elementInVector: 3000,
-                         vectorsAmount: 10);
+                         vectorsAmount: 5);
             genitor.RunGenitor();
             Console.WriteLine("Best Individual matrix:");
             MatrixOperations.PrintMatrix(fitnessFunctionGenitor.BestIndividual.Matrix);
             Console.WriteLine();
-            Console.WriteLine($"Best determinant found at {fitnessFunctionGenitor.BestGenerationNumber} generation. It is: {fitnessFunctionGenitor.BestIndividual.Determinant}");
-*/
+            Console.WriteLine($"Best determinant found at {fitnessFunctionGenitor.BestGenerationNumber} generation. It is: {fitnessFunctionGenitor.BestIndividual.Determinant}");*/
+
         }
     }
 }

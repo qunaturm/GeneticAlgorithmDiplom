@@ -14,8 +14,8 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         public double mutationPercent { get; set; } // Как часто происходит мутация
         public bool enableElitism { get; set; } // Включить элитарность
         public bool stopAfterNGenerations { get; set; } // Прекратить работу в случае, если в течение длительного периода не наблюдается улучшения характеристик особей в поколении
-        public int elementInVector { get; set; }
         public int vectorsAmount { get; set; }
+        public int elementInVector { get; set; }
 
         /// <summary>
         /// Инициализация движка ГА
@@ -42,8 +42,8 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
                              double mutationPercent,
                              bool enableElitism,
                              bool stopAfterNGenerations,
-                             int elementInVector,
-                             int vectorsAmount)
+                             int vectorsAmount,
+                             int elementInVector)
         {
             this.fitnessFunction = fitnessFunction;
             this.generationCount = generationCount;
@@ -55,8 +55,8 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
             this.mutationPercent = mutationPercent;
             this.enableElitism = enableElitism;
             this.stopAfterNGenerations = stopAfterNGenerations;
-            this.elementInVector = elementInVector;
             this.vectorsAmount = vectorsAmount;
+            this.elementInVector = elementInVector;
         }
 
         /// <summary>
@@ -115,11 +115,11 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         /// <returns></returns>
         private List<Individual> GenerateFirstGeneration()
         {
-            var vectors = MatrixRandom(elementInVector, vectorsAmount);
+            var vectors = MatrixRandom(vectorsAmount, elementInVector);
             var individualsList = new List<Individual>();
             for (int i = 0; i < individualCount * 5; i++)
             {
-                var squareMatrix = GetSquareMatrix(vectors, elementInVector, vectorsAmount);
+                var squareMatrix = GetSquareMatrix(vectors, vectorsAmount, elementInVector);
                 var det = GetDeterminant(squareMatrix);
                 individualsList.Add(new Individual { Matrix = squareMatrix, Determinant = det });
             }

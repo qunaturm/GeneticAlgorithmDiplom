@@ -12,10 +12,11 @@
         }
         public Individual Fitness(Individual currentBestIndividual, int generationNumber)
         {
-            if (currentBestIndividual.Determinant > BestIndividual.Determinant)
+            if (currentBestIndividual.Determinant > BestIndividual.Determinant && !double.IsNaN(currentBestIndividual.Determinant) && !double.IsInfinity(currentBestIndividual.Determinant))
             {
-                BestIndividual.Determinant = currentBestIndividual.Determinant;
-                BestIndividual.Matrix = currentBestIndividual.Matrix;
+                var copy = MatrixOperations.MatrixDuplicate(currentBestIndividual.Matrix);
+                BestIndividual.Matrix = copy;
+                BestIndividual.Determinant = MatrixOperations.GetDeterminant(BestIndividual.Matrix);
                 BestGenerationNumber = generationNumber;
                 GenerationWithoutProgressCounter = 0;
             }

@@ -66,7 +66,7 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         /// <returns>Возвращает лучшего полученного индивина</returns>
         public void RunGA()
         {
-            var initialSample =  GenerateFirstGeneration();
+            var initialSample = GenerateFirstGeneration();
             var currentGeneration = initialSample;
             for (int i = 0; i < generationCount; ++i)
             {
@@ -115,7 +115,9 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         /// <returns></returns>
         private List<Individual> GenerateFirstGeneration()
         {
-            var vectors = MatrixRandom(vectorsAmount, elementInVector);
+            // var vectors = MatrixRandom(vectorsAmount, elementInVector);
+            var vectors = MatrixRandomOneMinusOne(vectorsAmount, elementInVector);
+
             var individualsList = new List<Individual>();
             for (int i = 0; i < individualCount * 5; i++)
             {

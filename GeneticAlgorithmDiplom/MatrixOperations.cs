@@ -53,14 +53,18 @@
 
         public static void PrintMatrix(double[][] matrix)
         {
-            for (int row = 0; row < matrix.Length; ++row)
+            if (matrix != null)
             {
-                for (int column = 0; column < matrix.Length; ++column)
+                for (int row = 0; row < matrix.Length; ++row)
                 {
-                    Console.Write($"{matrix[row][column]}\t");
+                    for (int column = 0; column < matrix.Length; ++column)
+                    {
+                        Console.Write($"{matrix[row][column]}\t");
+                    }
+                    Console.WriteLine();
                 }
-                Console.WriteLine();
             }
+            else Console.WriteLine("matrix is empty");
         }
         #endregion
 
@@ -283,54 +287,43 @@
         /// <returns></returns>
         public static double[][] Decompose(double[][] matrix, out int[] perm, out int toggle)
         {
-            int size = matrix.Length;
-            var duplicatedMatrix = MatrixDuplicate(matrix);
-            perm = new int[size];
-            for (int i = 0; i < size; ++i)
-            {
-                perm[i] = i;
-            }
+            // Разложение LUP Дулитла. Предполагается,
+            // что матрица квадратная.
+            int n = matrix.Length; // для удобства
+            double[][] result = MatrixDuplicate(matrix);
+            perm = new int[n];
+            for (int i = 0; i < n; ++i) { perm[i] = i; }
             toggle = 1;
-            for (int j = 0; j < size - 1; ++j)
+            for (int j = 0; j < n - 1; ++j) // каждый столбец
             {
-                double columnMax = Math.Abs(duplicatedMatrix[j][j]);
+                double colMax = Math.Abs(result[j][j]); // Наибольшее значение в столбце j
                 int pRow = j;
-                for (int i = j + 1; i < size; ++i)
+                for (int i = j + 1; i < n; ++i)
                 {
-                    if (duplicatedMatrix[i][j] > columnMax)
+                    if (result[i][j] > colMax)
                     {
-                        columnMax = duplicatedMatrix[i][j];
+                        colMax = result[i][j];
                         pRow = i;
                     }
                 }
-                if (pRow != j)
+                if (pRow != j) // перестановка строк
                 {
-                    double[] rowPtr = duplicatedMatrix[pRow];
-                    duplicatedMatrix[pRow] = duplicatedMatrix[j];
-                    duplicatedMatrix[j] = rowPtr;
-                    int tmp = perm[pRow];
+                    double[] rowPtr = result[pRow];
+                    result[pRow] = result[j];
+                    result[j] = rowPtr;
+                    int tmp = perm[pRow]; // Меняем информацию о перестановке
                     perm[pRow] = perm[j];
                     perm[j] = tmp;
-                    toggle = -toggle;
+                    toggle = -toggle; // переключатель перестановки строк
                 }
-                for (int i = j + 1; i < size; ++i)
+                for (int i = j + 1; i < n; ++i)
                 {
-                    double current = duplicatedMatrix[i][j] / duplicatedMatrix[j][j];
-                    if (double.IsNaN(current) || Double.IsInfinity(current))
-                    {
-                        duplicatedMatrix[i][j] = 0;
-                    }
-                    else
-                    {
-                        duplicatedMatrix[i][j] = current;
-                    }
-                    for (int k = j + 1; k < size; ++k)
-                    {
-                        duplicatedMatrix[i][k] -= duplicatedMatrix[i][j] * duplicatedMatrix[j][k];
-                    }
+                    result[i][j] /= result[j][j];
+                    for (int k = j + 1; k < n; ++k)
+                        result[i][k] -= result[i][j] * result[j][k];
                 }
-            }
-            return duplicatedMatrix;
+            } // основной цикл по столбцу j
+            return result;
         }
 
         /// <summary>
@@ -341,43 +334,24 @@
         /// <returns></returns>
         public static double[] HelperSolve(double[][] luMatrix, double[] b)
         {
-            int size = luMatrix.Length;
-            double[] x = new double[size];
+            // Решаем luMatrix * x = b
+            int n = luMatrix.Length;
+            double[] x = new double[n];
             b.CopyTo(x, 0);
-            for (int i = 1; i < size; ++i)
+            for (int i = 1; i < n; ++i)
             {
                 double sum = x[i];
                 for (int j = 0; j < i; ++j)
-                {
                     sum -= luMatrix[i][j] * x[j];
-                }
                 x[i] = sum;
             }
-            var current = luMatrix[size - 1][size - 1];
-            if (current == 0)
-            {
-                x[size - 1] = 0;
-            }
-            else
-            {
-                x[size - 1] /= luMatrix[size - 1][size - 1];
-            }
-            for (int i = size - 2; i >= 0; --i)
+            x[n - 1] /= luMatrix[n - 1][n - 1];
+            for (int i = n - 2; i >= 0; --i)
             {
                 double sum = x[i];
-                for (int j = i + 1; j < size; ++j)
-                {
+                for (int j = i + 1; j < n; ++j)
                     sum -= luMatrix[i][j] * x[j];
-                }
-                current = luMatrix[i][i];
-                if (current == 0)
-                {
-                    x[i] = 0;
-                }
-                else
-                {
-                    x[i] = sum / luMatrix[i][i];
-                }
+                x[i] = sum / luMatrix[i][i];
             }
             return x;
         }
@@ -392,19 +366,19 @@
         /// <param name="m"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static double[][] Inverse(double[][] matrix)
+        public static double[][] MatrixInverse(double[][] matrix)
         {
-            int size = matrix.Length;
-            var duplicatedMatrix = MatrixDuplicate(matrix);
+            int n = matrix.Length;
+            double[][] result = MatrixDuplicate(matrix);
             int[] perm;
             int toggle;
-            var lum = Decompose(matrix, out perm, out toggle);
+            double[][] lum = Decompose(matrix, out perm, out toggle);
             if (lum == null)
                 throw new Exception("Unable to compute inverse");
-            double[] b = new double[size];
-            for (int i = 0; i < size; ++i)
+            double[] b = new double[n];
+            for (int i = 0; i < n; ++i)
             {
-                for (int j = 0; j < size; ++j)
+                for (int j = 0; j < n; ++j)
                 {
                     if (i == perm[j])
                         b[j] = 1.0;
@@ -412,10 +386,10 @@
                         b[j] = 0.0;
                 }
                 double[] x = HelperSolve(lum, b);
-                for (int j = 0; j < size; ++j)
-                    duplicatedMatrix[j][i] = x[j];
+                for (int j = 0; j < n; ++j)
+                    result[j][i] = x[j];
             }
-            return duplicatedMatrix;
+            return result;
         }
 
         /// <summary>
@@ -428,10 +402,12 @@
         /// <exception cref="Exception"></exception>
         public static double GetDeterminant(double[][] matrix)
         {
+            if (matrix == null) return 0.0;
             int[] perm;
             int toggle;
-            var lum = Decompose(matrix, out perm, out toggle);
-            if (lum == null) throw new Exception("unable compute determinant");
+            double[][] lum = Decompose(matrix, out perm, out toggle);
+            if (lum == null)
+                throw new Exception("Unable to compute MatrixDeterminant");
             double result = toggle;
             for (int i = 0; i < lum.Length; ++i)
                 result *= lum[i][i];

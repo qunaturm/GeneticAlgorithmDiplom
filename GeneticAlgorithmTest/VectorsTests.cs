@@ -103,20 +103,20 @@ namespace GeneticAlgorithmTest
         {
             double[][] m = MatrixOperations.CreateMatrix(3, 3);
 
-            m[0][0] = 0;
-            m[0][1] = 1;
+            m[0][0] = -1;
+            m[0][1] = -1;
             m[0][2] = 1;
 
-            m[1][0] = 0;
-            m[1][1] = 0;
-            m[1][2] = 0;
+            m[1][0] = 1;
+            m[1][1] = 1;
+            m[1][2] = 1;
 
-            m[2][0] = 0;
+            m[2][0] = -1;
             m[2][1] = 1;
-            m[2][2] = 0;
+            m[2][2] = -1;
 
             var det = MatrixOperations.GetDeterminant(m);
-            det.Should().BeInRange(0, 0.1);
+            det.Should().BeInRange(4, 4.1);
         }
 
         [Fact]
@@ -124,18 +124,18 @@ namespace GeneticAlgorithmTest
         {
             var matrix = MatrixOperations.MatrixRandom(9, 4);
             var squareMatrix = MatrixOperations.GetSquareMatrix(matrix, 9, 4);
-            double[] row1ToSwap = new double[] { 4, 8, 12, 55};
+            double[] row1ToSwap = new double[] { 4, 8, 12, 55 };
             double[] row2ToSwap = new double[] { 16, 29, 98, 3 };
             double[] row3ToSwap = new double[] { 63, 11, 74, 49 };
             double[] row4ToSwap = new double[] { 91, 33, 2, 86 };
-
 
             MatrixOperations.SwapRows(ref squareMatrix, row1ToSwap, 0);
             MatrixOperations.SwapRows(ref squareMatrix, row2ToSwap, 1);
             MatrixOperations.SwapRows(ref squareMatrix, row3ToSwap, 2);
             MatrixOperations.SwapRows(ref squareMatrix, row4ToSwap, 3);
-            var determinant = MatrixOperations.GetDeterminant(squareMatrix);
-            Math.Round(determinant).Should().Be(-13575088);
+            var determinant1 = MatrixOperations.GetDeterminant(squareMatrix);
+
+            Math.Round(determinant1).Should().Be(-13575088);
         }
 
         [Fact]
@@ -161,6 +161,34 @@ namespace GeneticAlgorithmTest
 
             var determinant = MatrixOperations.GetDeterminant(squareMatrix);
             Math.Round(determinant).Should().Be(8);
+        }
+        [Fact]
+        public void GetDeterminant8x8()
+        {
+            var matrix = MatrixOperations.MatrixRandom(20, 8);
+            var squareMatrix = MatrixOperations.GetSquareMatrix(matrix, 20, 8);
+            double[] row1ToSwap = new double[] { 1, -1, 1, 1, 1, -1, 1, 1 };
+            double[] row2ToSwap = new double[] { 1, 1, 1, -1, -1, 1, 1, -1 };
+            double[] row3ToSwap = new double[] { 1, 1, 1, 1, 1, 1, -1, 1 };
+            double[] row4ToSwap = new double[] { 1, 1, -1, 1, 1, -1, 1, 1 };
+            double[] row5ToSwap = new double[] { -1, 1, 1, 1, 1, 1, 1, -1 };
+            double[] row6ToSwap = new double[] { -1, 1, 1, -1, -1, -1, -1, -1 };
+            double[] row7ToSwap = new double[] { -1, 1, -1, 1, -1, -1, 1, -1 };
+            double[] row8ToSwap = new double[] { -1, 1, -1, -1, 1, 1, -1, 1 };
+
+
+            MatrixOperations.SwapRows(ref squareMatrix, row1ToSwap, 0);
+            MatrixOperations.SwapRows(ref squareMatrix, row2ToSwap, 1);
+            MatrixOperations.SwapRows(ref squareMatrix, row3ToSwap, 2);
+            MatrixOperations.SwapRows(ref squareMatrix, row4ToSwap, 3);
+            MatrixOperations.SwapRows(ref squareMatrix, row5ToSwap, 4);
+            MatrixOperations.SwapRows(ref squareMatrix, row6ToSwap, 5);
+            MatrixOperations.SwapRows(ref squareMatrix, row7ToSwap, 6);
+            MatrixOperations.SwapRows(ref squareMatrix, row8ToSwap, 7);
+
+
+            var determinant = MatrixOperations.GetDeterminant(squareMatrix);
+            Math.Round(determinant).Should().Be(-384);
         }
     }
 }

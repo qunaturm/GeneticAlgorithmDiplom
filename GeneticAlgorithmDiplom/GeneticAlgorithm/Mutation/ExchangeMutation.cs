@@ -6,32 +6,32 @@
         {
             var mutated = new List<Individual>();
             var random = new Random();
-            var mutationCounter = 0;
-            foreach (var individ in individuals)
+
+            var mutationFactors = individuals.Select(u => new MutationFactor
             {
-                var willMutate = random.NextDouble();
-                if (willMutate <= mutationPercent)
-                {
-                    // get indexex of chromosome to exchange
-                    var firstChromosomeIndex = random.Next(0, individ.Matrix.Length - 1);
-                    var secondChromosomeIndex = random.Next(0, individ.Matrix.Length - 1);
+                Individual = u,
+                ChromosomePair = random.NextDouble() <= mutationPercent ? (random.Next(0, u.Matrix.Length - 1), random.Next(0, u.Matrix.Length - 1)) : (0, 0)
+            }); ;
 
-                    // eliminate repeat
-                    while (secondChromosomeIndex == firstChromosomeIndex)
-                    {
-                        secondChromosomeIndex = random.Next(0, individ.Matrix.Length - 1);
-                    }
-
-                    //exchange chromosomes
-                    var individMatrix = individ.Matrix;
-                    MatrixOperations.SwapColls(ref individMatrix, firstChromosomeIndex, secondChromosomeIndex);
-                    individ.Matrix = individMatrix;
-                    individ.Determinant = MatrixOperations.GetDeterminant(individ.Matrix);
-                    mutationCounter++;
-                }
-                mutated.Add(individ);
-            }
+            var resutl = Parallel.ForEach(mutationFactors, u => Mutate(u));
+            mutated = mutationFactors.Select(x => x.Individual).ToList();
             return mutated;
         };
+
+        internal static Individual Mutate(MutationFactor mutationFactor)
+        {
+            if (mutationFactor.ChromosomePair == (0, 0)) return mutationFactor.Individual;
+            var individMatrix = mutationFactor.Individual.Matrix;
+            MatrixOperations.SwapColls(ref individMatrix, mutationFactor.ChromosomePair.Item1, mutationFactor.ChromosomePair.Item2);
+            mutationFactor.Individual.Matrix = individMatrix;
+            mutationFactor.Individual.Determinant = MatrixOperations.GetDeterminant(mutationFactor.Individual.Matrix);
+            return mutationFactor.Individual;
+        }
+
+        internal class MutationFactor
+        {
+            internal Individual Individual { get; set; }
+            internal (int, int) ChromosomePair { get; set; }
+        }
     }
 }

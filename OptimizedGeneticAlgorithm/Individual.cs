@@ -1,4 +1,4 @@
-﻿namespace GeneticAlgorithmDiplom
+﻿namespace OptimizedGeneticAlgorithm
 {
     public sealed class Individual
     {
@@ -6,7 +6,6 @@
         public double Determinant { get; set; }
         public static List<Individual> MergeSort(List<Individual> list)
         {
-            if (list.Count == 0) return null;
             if (list.Count == 1) return list;
 
             var left = new List<Individual>();

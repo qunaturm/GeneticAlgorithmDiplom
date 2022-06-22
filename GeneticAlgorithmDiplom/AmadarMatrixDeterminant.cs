@@ -21,7 +21,7 @@
                 case 13: return 14929920;
                 default: break;
             }
-            throw new ArgumentException($"Determinant for{dimention} dimention doesn't found for now");
+            throw new ArgumentException($"Determinant for {dimention} dimention doesn't found for now");
         }
     }
 }

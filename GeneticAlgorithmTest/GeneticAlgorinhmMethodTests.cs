@@ -33,7 +33,7 @@ namespace GeneticAlgorithmTest
             sortedList[0].Determinant.Should().Be(-8);
         }
 
-        [Fact]
+/*        [Fact]
         public void Run()
         {
             var fitnessFunction = new FitnessFunction();
@@ -50,6 +50,6 @@ namespace GeneticAlgorithmTest
                          90,
                          7);
             ga.RunGA();
-        }
+        }*/
     }
 }

@@ -85,7 +85,9 @@ namespace GeneticAlgorithmDiplom.Genitor
         /// <returns>Возвращает сгенерированный список особей</returns>
         private List<Individual> GenerateFirstGeneration()
         {
-            var vectors = MatrixRandom(elementInVector, vectorsAmount);
+            //var vectors = MatrixRandom(elementInVector, vectorsAmount);
+            var vectors = MatrixRandomOneMinusOne(elementInVector, vectorsAmount);
+
             var individualsList = new List<Individual>();
             for (int i = 0; i < individualCount; i++)
             {

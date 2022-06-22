@@ -1,21 +1,23 @@
-﻿using static GeneticAlgorithmDiplom.MatrixOperations;
+﻿using MatrixModule;
+using static OptimizedGeneticAlgorithm.MatrixOperations;
 
-namespace GeneticAlgorithmDiplom.GeneticAlgorithm
+namespace OptimizedGeneticAlgorithm.GeneticAlgorithm
 {
     public sealed class GeneticEngine
     {
+        public MatrixSource MatrixSource { get; init; }
         public FitnessFunction fitnessFunction { get; set; } // Фитнесс функция
         public long generationCount { get; set; } // Кол-во поколений
         public int individualCount { get; set; } // Кол-во индивидов в поколении
-        public Func<List<Individual>, int, bool, List<Individual>> selectionType { get; set; } // Тип селекции
-        public Func<List<Individual>, List<Individual>> crossingType { get; set; } // Тип скрещивания
-        public Func<List<Individual>, List<Individual>?, double, List<Individual>> mutationType { get; set; } // Тип мутации
+        public Func<List<DependentMatrix>, int, bool, List<DependentMatrix>> selectionType { get; set; } // Тип селекции
+        public Func<List<DependentMatrix>, List<DependentMatrix>> crossingType { get; set; } // Тип скрещивания
+        public Func<List<DependentMatrix>, List<DependentMatrix>?, double, List<DependentMatrix>> mutationType { get; set; } // Тип мутации
         public bool useMutation { get; set; } // Использовать мутацию
         public double mutationPercent { get; set; } // Как часто происходит мутация
         public bool enableElitism { get; set; } // Включить элитарность
         public bool stopAfterNGenerations { get; set; } // Прекратить работу в случае, если в течение длительного периода не наблюдается улучшения характеристик особей в поколении
-        public int vectorsAmount { get; set; }
         public int elementInVector { get; set; }
+        public int vectorsAmount { get; set; }
 
         /// <summary>
         /// Инициализация движка ГА
@@ -32,19 +34,21 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         /// <param name="stopAfterNGenerations">Прекратить работу в случае, если в течение длительного периода не наблюдается улучшения характеристик особей в поколении</param>
         /// <param name="elementInVector">Количество столбцов</param>
         /// <param name="vectorsAmount">Количество строк</param>
-        public GeneticEngine(FitnessFunction fitnessFunction,
+        public GeneticEngine(MatrixSource matrixSource,
+                             FitnessFunction fitnessFunction,
                              long generationCount,
                              int individualCount,
-                             Func<List<Individual>, int, bool, List<Individual>> selectionType,
-                             Func<List<Individual>, List<Individual>> crossingType,
-                             Func<List<Individual>, List<Individual>?, double, List<Individual>> mutationType,
+                             Func<List<DependentMatrix>, int, bool, List<DependentMatrix>> selectionType,
+                             Func<List<DependentMatrix>, List<DependentMatrix>> crossingType,
+                             Func<List<DependentMatrix>, List<DependentMatrix>?, double, List<DependentMatrix>> mutationType,
                              bool useMutation,
                              double mutationPercent,
                              bool enableElitism,
                              bool stopAfterNGenerations,
-                             int vectorsAmount,
-                             int elementInVector)
+                             int elementInVector,
+                             int vectorsAmount)
         {
+            MatrixSource = matrixSource;
             this.fitnessFunction = fitnessFunction;
             this.generationCount = generationCount;
             this.individualCount = individualCount;
@@ -55,8 +59,8 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
             this.mutationPercent = mutationPercent;
             this.enableElitism = enableElitism;
             this.stopAfterNGenerations = stopAfterNGenerations;
-            this.vectorsAmount = vectorsAmount;
             this.elementInVector = elementInVector;
+            this.vectorsAmount = vectorsAmount;
         }
 
         /// <summary>
@@ -66,53 +70,27 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         /// <returns>Возвращает лучшего полученного индивина</returns>
         public void RunGA()
         {
-            var initialSample = GenerateFirstGeneration();
-            var currentGeneration = initialSample;
+            var currentGeneration = GenerateFirstGeneration();
             for (int i = 0; i < generationCount; ++i)
             {
-                // selection and crossing
+                // selection, crossing and mutation
                 currentGeneration = selectionType(currentGeneration, individualCount, enableElitism);
                 currentGeneration = crossingType(currentGeneration);
-
-                // get children that will mutate and segregate them from parents
-                var children = currentGeneration.Where((val, idx) => idx > individualCount - 1).ToList();
-                currentGeneration = currentGeneration.Where((val, idx) => idx < individualCount).ToList();
-
-                // mutation
-                List<Individual> mutatedChildren = new List<Individual>();
-                if (mutationType == Mutation.ClassicMutation.Mutator)
-                {
-                    mutatedChildren = mutationType(children, initialSample, mutationPercent);
-                }
-                else
-                {
-                    mutatedChildren = mutationType(children, null, mutationPercent);
-                }
-
-                // add mutated children to parents
-                currentGeneration.AddRange(mutatedChildren);
+                currentGeneration = mutationType(currentGeneration, null, mutationPercent);
 
                 // sort i-generation to get best
-                var n = currentGeneration.Where(x => double.IsNaN(x.Determinant)).ToList();
-                var n2 = Individual.MergeSort(currentGeneration.Where(x => !double.IsNaN(x.Determinant)).ToList());
+                var currentBestIndividual = currentGeneration.OrderByDescending(u => u.Determinant).FirstOrDefault();
 
-                List<Individual> sortedCurrentGeneration = new List<Individual>();
-                sortedCurrentGeneration.AddRange(n);
-                if (n2 != null) sortedCurrentGeneration.AddRange(n2);
-
-                fitnessFunction.Fitness(sortedCurrentGeneration[sortedCurrentGeneration.Count - 1], i);
+                fitnessFunction.Fitness(currentBestIndividual, i);
 
                 // if stopAfterNGenerations == true
-                if (stopAfterNGenerations == true && fitnessFunction.GenerationWithoutProgressCounter == 100)
+                if (stopAfterNGenerations == true && fitnessFunction.GenerationWithoutProgressCounter == 10)
                 {
                     Console.WriteLine($"GA was stopped at {i}-generation due to the lack of improvements in the characteristics of individuals");
                     break;
                 }
-                Console.WriteLine($"Generation {i}, best determinant = {sortedCurrentGeneration[sortedCurrentGeneration.Count - 1].Determinant}");
-
+                Console.WriteLine($"Generation {i}, best determinant = {currentBestIndividual.Determinant}");
                 Console.WriteLine("____________________________");
-/*                Console.WriteLine("best individ matrix");
-                MatrixOperations.PrintMatrix(currentGeneration[currentGeneration.Count - 1].Matrix);*/
             }
             Console.WriteLine("____________________________");
         }
@@ -121,19 +99,14 @@ namespace GeneticAlgorithmDiplom.GeneticAlgorithm
         /// Метод генерации первого поколения особей(индивидов)
         /// </summary>
         /// <returns></returns>
-        private List<Individual> GenerateFirstGeneration()
+        private List<DependentMatrix> GenerateFirstGeneration()
         {
-            var vectors = MatrixRandom(vectorsAmount, elementInVector);
-            //var vectors = MatrixRandomOneMinusOne(vectorsAmount, elementInVector);
-
-            var individualsList = new List<Individual>();
+            var result = new List<DependentMatrix>();
             for (int i = 0; i < individualCount * 5; i++)
             {
-                var squareMatrix = GetSquareMatrix(vectors, vectorsAmount, elementInVector);
-                var det = GetDeterminant(squareMatrix);
-                individualsList.Add(new Individual { Matrix = squareMatrix, Determinant = det });
+                result.Add(MatrixSource.GenerateDependentMatrix());
             }
-            return individualsList;
+            return result;
         }
     }
 }
